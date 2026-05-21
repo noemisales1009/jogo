@@ -331,12 +331,12 @@
   /* ====== PERFIL DO VILÃO ====== */
   .vp-overlay{
     position:absolute;inset:0;z-index:40;
-    display:none;flex-direction:column;
-    background:rgba(2,4,14,0.97);overflow:hidden;
+    display:none;
+    background:rgba(2,4,14,0.97);overflow-y:auto;
     animation:slideIn .3s cubic-bezier(.16,1,.3,1);
   }
-  .vp-overlay.show{display:flex}
-  .vp-inner{max-width:640px;width:100%;margin:0 auto;padding:16px 16px 20px;flex:1;overflow-y:auto;min-height:0}
+  .vp-overlay.show{display:block}
+  .vp-inner{max-width:640px;width:100%;margin:0 auto;padding:16px 16px 8px;}
   .vp-hero-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--vp-color,#ff2d6f)}
   .vp-sprite-wrap{width:90px;height:90px;flex-shrink:0;border-radius:50%;overflow:hidden;border:3px solid var(--vp-color,#ff2d6f);box-shadow:0 0 18px var(--vp-glow,rgba(255,45,111,.5))}
   .vp-sprite-wrap img{width:100%;height:100%;object-fit:cover}
@@ -354,7 +354,7 @@
   .vp-locs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
   .vp-loc{font-family:'Press Start 2P';font-size:7px;padding:5px 8px;border:1px solid rgba(255,255,255,0.12);color:var(--muted)}
   .vp-tip-text{font-family:'VT323';font-size:21px;color:var(--warn);line-height:1.3}
-  .vp-footer{padding:12px 16px;border-top:2px solid rgba(255,255,255,0.07);display:flex;gap:10px;max-width:640px;width:100%;margin:0 auto;flex-shrink:0}
+  .vp-footer{position:sticky;bottom:0;padding:12px 16px;border-top:2px solid rgba(255,255,255,0.07);display:flex;gap:10px;max-width:640px;width:100%;margin:0 auto;background:rgba(2,4,14,0.97);z-index:1}
 
   @media(max-width:480px){
     .vp-two-col{grid-template-columns:1fr}
