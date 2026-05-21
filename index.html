@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROTOCOLO CCIH — Batalha contra os Vilões da Infecção</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#04060d;
+    --bg-mid:#0a1224;
+    --grid:#0e2240;
+    --hero-cyan:#00f0ff;
+    --hero-cyan-dim:#0a8aa6;
+    --hero-mint:#7afcd1;
+    --warn:#ffcf3a;
+    --danger:#ff2d6f;
+    --good:#39ff8c;
+    --text:#dff2ff;
+    --muted:#7a90b5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;width:100%;overflow:hidden;background:var(--bg-deep);font-family:'VT323',monospace;color:var(--text);}
+
+  /* ====== FUNDO GLOBAL: grade cyber + scanlines ====== */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(0,240,255,0.08), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(255,45,111,0.07), transparent 55%),
+      linear-gradient(180deg,#04060d 0%, #060a17 60%, #02030a 100%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0 1px, transparent 1px 3px);
+    mix-blend-mode:overlay;
+  }
+
+  /* ====== APP ====== */
+  ::-webkit-scrollbar { width: 0; background: transparent; }
+  * { scrollbar-width: none; }
+  #app{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;z-index:1}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;animation:slideIn .3s cubic-bezier(0.16, 1, 0.3, 1);overflow-y:auto;overflow-x:hidden}
+  .screen.active{display:flex}
+  @keyframes slideIn{from{opacity:0;transform:translateY(15px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+  /* ====== TIPOGRAFIA ====== */
+  .pixel{font-family:'Press Start 2P',monospace;letter-spacing:1px}
+  .display{font-family:'Orbitron',sans-serif;letter-spacing:3px;font-weight:900}
+  .read{font-family:'VT323',monospace;font-size:22px;line-height:1.2}
+
+  
+  /* ====== TELAS DE AUTH E RANKING ====== */
+  .auth-form { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 16px; margin-top: 30px; }
+  .auth-input { width: 100%; font-family: 'Press Start 2P'; font-size: 10px; padding: 14px; background: rgba(4,10,22,0.8); border: 2px solid #1a2c4e; color: var(--text); outline: none; transition: border 0.2s; }
+  .auth-input:focus { border-color: var(--hero-cyan); }
+  .rank-table { width: 100%; max-width: 500px; margin-top: 20px; border-collapse: collapse; font-family: 'VT323'; font-size: 20px; text-align: left;}
+  .rank-table th { padding: 8px; border-bottom: 2px solid var(--hero-cyan); color: var(--hero-cyan); text-align: left; }
+  .rank-table td { padding: 8px; border-bottom: 1px dashed #1a2c4e; color: var(--text); }
+  .rank-table .rank-pos { font-family: 'Press Start 2P'; font-size: 10px; color: var(--warn); }
+  .auth-toggle { font-family: 'VT323'; font-size: 18px; color: var(--hero-cyan); cursor: pointer; text-decoration: underline; text-align: center; margin-top: 10px; }
+  .btn-rank { margin-top: 16px; font-family: 'Press Start 2P'; font-size: 12px; padding: 12px 24px; border: 2px solid #1a2c4e; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+  .btn-rank:hover { border-color: var(--hero-cyan); color: var(--hero-cyan); }
+
+  
+  /* ====== TELA MAPA ====== */
+  .map-screen { padding: 0 !important; overflow: hidden; background: #0b1121; justify-content: flex-start; }
+  .map-header { 
+    display: flex; justify-content: flex-end; align-items: center;
+    padding: 15px 24px; background: var(--bg-mid); width: 100%;
+    border-bottom: 2px solid var(--grid); z-index: 10; flex-shrink: 0;
+  }
+  .map-stat { font-family: 'Press Start 2P'; font-size: 14px; color: var(--warn); display: flex; align-items: center; gap: 8px; }
+  
+  .map-scroll-area {
+    width: 100%; flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding-bottom: 90px;
+    background-image: radial-gradient(ellipse at 50% 50%, rgba(0,240,255,0.03), transparent 60%);
+  }
+  .map-section { width: 100%; max-width: 600px; margin: 0 auto 50px auto; }
+  .map-section-header {
+    color: #000; padding: 16px 20px; text-align: center;
+    border-radius: 12px; margin: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .map-section-header h3 { font-family: 'Press Start 2P', monospace; font-size: 14px; margin-bottom: 8px; }
+  .map-section-header p { font-family: 'VT323', monospace; font-size: 22px; margin: 0; }
+  
+  .map-path { display: flex; flex-direction: column; align-items: center; gap: 40px; padding: 20px 0; position: relative; }
+  
+  .map-node {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: #2a3441; border: 4px solid #1a2332;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; z-index: 2;
+    transition: transform 0.2s; box-shadow: 0 8px 0 #0d131f;
+  }
+  .map-node:active { transform: translateY(8px); box-shadow: 0 0 0 #0d131f; }
+  .map-node.done { background: var(--hero-cyan); border-color: #fff; box-shadow: 0 8px 0 #008899; }
+  .map-node.current { background: var(--warn); border-color: #fff; box-shadow: 0 8px 0 #cc9900; animation: pulseNode 1.5s infinite; }
+  .map-node.locked { opacity: 0.6; cursor: not-allowed; }
+  .map-node:active.locked { transform: none; box-shadow: 0 8px 0 #0d131f; }
+  .map-node img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.5); }
+  .map-node .locked-icon { font-size: 30px; opacity: 0.5; }
+  
+  /* SVG path connection */
+  .map-path svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+  
+  @keyframes pulseNode {
+    0% { transform: scale(1); box-shadow: 0 8px 0 #cc9900; }
+    50% { transform: scale(1.05); box-shadow: 0 8px 0 #cc9900, 0 0 20px rgba(255,207,58,0.5); }
+    100% { transform: scale(1); box-shadow: 0 8px 0 #cc9900; }
+  }
+
+  .map-navbar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 70px; background: var(--bg-mid); border-top: 2px solid var(--grid);
+    display: flex; justify-content: space-around; align-items: center; z-index: 10;
+  }
+  .map-nav-item {
+    background: transparent; border: none; font-size: 28px;
+    cursor: pointer; padding: 10px; transition: all 0.2s; filter: grayscale(1); opacity: 0.5;
+  }
+  .map-nav-item.active { filter: grayscale(0); opacity: 1; transform: scale(1.1); }
+  .map-nav-item span { pointer-events: none; }
+  
+  /* Hide the old villain select screen */
+  #screen-villain { display: none !important; }
+
+  /* ====== TELA TÍTULO ====== */
+  .title-stack{text-align:center;position:relative;margin:auto 0;padding:20px 0;width:100%}
+  .title-tag{font-family:'Press Start 2P';font-size:11px;color:var(--hero-cyan);margin-bottom:18px;opacity:.85;animation:flicker 3s infinite}
+  @keyframes flicker{0%,18%,22%,25%,53%,57%,100%{opacity:.85}20%,24%,55%{opacity:.3}}
+  .game-title{font-family:'Orbitron';font-weight:900;font-size:clamp(40px,8vw,110px);line-height:.95;
+    background:linear-gradient(180deg,#fff 0%,#a8eaff 35%,#00f0ff 60%,#0a8aa6 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 30px rgba(0,240,255,.35);
+    filter:drop-shadow(0 0 12px rgba(0,240,255,.4));
+  }
+  .game-subtitle{font-family:'Press Start 2P';font-size:13px;color:var(--text);margin-top:18px;opacity:.85}
+  .game-subtitle b{color:var(--danger)}
+  .start-btn{margin-top:42px;font-family:'Press Start 2P';font-size:14px;padding:18px 38px;
+    background:linear-gradient(180deg,#0e2a44,#061625);color:var(--hero-cyan);
+    border:2px solid var(--hero-cyan);cursor:pointer;letter-spacing:2px;
+    box-shadow:0 0 0 2px #000, 0 0 20px rgba(0,240,255,.45), inset 0 0 12px rgba(0,240,255,.15);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .start-btn:hover{transform:translateY(-2px);box-shadow:0 0 0 2px #000, 0 0 30px rgba(0,240,255,.7), inset 0 0 18px rgba(0,240,255,.25)}
+  .start-btn:active{transform:translateY(1px)}
+  .blink{animation:blink 1.1s steps(2) infinite}
+  @keyframes blink{50%{opacity:.2}}
+
+  /* ====== TELAS DE SELEÇÃO ====== */
+  .select-screen{padding:30px 20px;justify-content:flex-start}
+  .select-header{font-family:'Press Start 2P';font-size:16px;color:var(--hero-cyan);text-align:center;margin-bottom:6px;text-shadow:0 0 10px var(--hero-cyan);margin-top:20px}
+  .select-sub{font-family:'VT323';font-size:22px;color:var(--muted);margin-bottom:24px;text-align:center}
+
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;max-width:980px;width:100%}
+  .card{position:relative;padding:18px;border:2px solid var(--card-color,#1a2c4e);background:linear-gradient(180deg, rgba(10,18,36,.9), rgba(4,8,16,.95));cursor:pointer;transition:all .2s ease;overflow:hidden}
+  .card::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px, transparent 1px 3px);pointer-events:none}
+  .card:hover{transform:translateY(-4px);box-shadow:0 0 0 1px var(--card-color),0 8px 30px var(--card-glow,rgba(0,240,255,.3))}
+  .card-sprite{width:100%;height:140px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  .card-sprite svg{width:120px;height:120px;filter:drop-shadow(0 0 12px var(--card-glow,rgba(0,240,255,.4)))}
+  .card-name{font-family:'Press Start 2P';font-size:13px;color:var(--card-color,var(--text));text-align:center;margin-bottom:6px;text-shadow:0 0 8px var(--card-glow,rgba(0,240,255,.4))}
+  .card-tag{font-family:'VT323';font-size:18px;color:var(--muted);text-align:center;line-height:1.1}
+  .card-meta{display:flex;justify-content:space-between;margin-top:12px;font-family:'Press Start 2P';font-size:8px}
+  .card-meta span{color:var(--muted)}
+  .card-meta b{color:var(--card-color,var(--text))}
+
+  /* ====== TELA DE BATALHA ====== */
+  #battle{padding:0}
+  .battle-wrap{width:100%;max-width:900px;flex:1;display:flex;flex-direction:column;padding:0;gap:10px;margin:10px auto;flex-shrink:0}
+
+  .hud-top{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+  .hp-card{padding:8px 12px;border:2px solid var(--hud-border,var(--hero-cyan));background:rgba(4,10,22,.7);position:relative;backdrop-filter:blur(2px)}
+  .hp-card.hero{border-color:var(--hero-cyan);box-shadow:inset 0 0 14px rgba(0,240,255,.15), 0 0 12px rgba(0,240,255,.25)}
+  .hp-card.villain{border-color:var(--villain-color,var(--danger));box-shadow:inset 0 0 14px rgba(255,45,111,.18), 0 0 12px var(--villain-glow,rgba(255,45,111,.35))}
+  .hp-label{font-family:'Press Start 2P';font-size:9px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:6px}
+  .hp-label .name{color:var(--text);text-shadow:0 0 6px currentColor;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hp-label .val{color:var(--text);font-size:8px;opacity:.85;white-space:nowrap}
+  .hp-bar{height:14px;background:#000;border:1px solid #122039;position:relative;overflow:hidden}
+  .hp-bar .fill{height:100%;width:100%;transition:width .6s cubic-bezier(.2,.9,.3,1);background:linear-gradient(90deg, var(--bar-from,#00f0ff), var(--bar-to,#7afcd1));position:relative}
+  .hp-bar .fill::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 4px, transparent 4px 8px)}
+  .hp-card.villain .fill{background:linear-gradient(90deg, var(--villain-color,var(--danger)), #ff8aa8)}
+
+  .score-pill{font-family:'Press Start 2P';font-size:10px;padding:8px 12px;border:2px solid #1a2c4e;background:rgba(0,0,0,.5);color:var(--hero-cyan);text-align:center;white-space:nowrap}
+  .score-pill .turn{font-size:7px;color:var(--muted);display:block;margin-bottom:4px}
+
+  /* ====== ARENA ====== */
+  .arena{flex:1;position:relative;border:2px solid #122039;background:
+    radial-gradient(ellipse at 50% 30%, rgba(0,240,255,.07), transparent 60%),
+    radial-gradient(ellipse at 75% 80%, var(--villain-glow,rgba(255,45,111,.12)), transparent 55%),
+    linear-gradient(180deg,#060c1c,#03070f);
+    overflow:hidden;min-height:220px}
+  .arena::before{content:"";position:absolute;inset:0;background-image:
+    linear-gradient(rgba(0,240,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,240,255,.06) 1px, transparent 1px);
+    background-size:32px 32px;
+    mask-image:linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  }
+  .arena::after{content:"ALA NEP — SETOR CCIH";position:absolute;top:10px;left:50%;transform:translateX(-50%);
+    font-family:'Press Start 2P';font-size:8px;color:var(--hero-cyan);opacity:.7;letter-spacing:2px;white-space:nowrap}
+
+  .floor-tags{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-around;font-family:'Press Start 2P';font-size:7px;color:var(--muted);opacity:.5;flex-wrap:wrap;gap:4px;padding:0 4px}
+
+  .hero-zone, .villain-zone{position:absolute;bottom:30px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .hero-zone{left:8%;animation:bob 2.2s ease-in-out infinite}
+  .villain-zone{right:6%;animation:bob 2.6s ease-in-out infinite reverse}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  .sprite{position:relative;width:140px;height:140px}
+  .sprite svg{width:100%;height:100%;display:block}
+  .hero-zone .sprite{filter:drop-shadow(0 0 14px rgba(0,240,255,.55))}
+  .villain-zone .sprite{filter:drop-shadow(0 0 18px var(--villain-glow,rgba(255,45,111,.6)))}
+
+  .shadow-disc{width:90px;height:14px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,240,255,.25),transparent 70%);margin-top:-6px}
+  .villain-zone .shadow-disc{background:radial-gradient(ellipse,var(--villain-glow,rgba(255,45,111,.35)),transparent 70%)}
+
+  /* aura holograma do herói */
+  .hero-aura{position:absolute;inset:-10px;border:1px dashed rgba(0,240,255,.4);border-radius:50%;animation:spin 6s linear infinite;pointer-events:none}
+  .hero-aura.inner{inset:6px;border-style:dotted;animation:spin 4s linear infinite reverse;border-color:rgba(122,252,209,.4)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* slime drip do vilão */
+  .villain-drip{position:absolute;bottom:-4px;left:50%;width:80px;height:14px;transform:translateX(-50%);
+    background:radial-gradient(ellipse at center, var(--villain-color,#ff2d6f) 0%, transparent 70%);opacity:.6;filter:blur(2px)}
+
+  /* projétil/efeito de ataque */
+  .fx-layer{position:absolute;inset:0;pointer-events:none}
+  .projectile{position:absolute;width:36px;height:36px;border-radius:50%;
+    background:radial-gradient(circle, #fff 0%, var(--hero-cyan) 40%, transparent 75%);
+    box-shadow:0 0 30px var(--hero-cyan), 0 0 60px var(--hero-cyan);
+    top:55%;left:18%;opacity:0}
+  .projectile.fire{animation:fireProj .7s ease-out forwards}
+  @keyframes fireProj{
+    0%{opacity:0;transform:translate(0,0) scale(.4)}
+    15%{opacity:1;transform:translate(20px,-10px) scale(1)}
+    100%{opacity:0;transform:translate(60vw,0) scale(1.6)}
+  }
+  .villain-counter{position:absolute;width:30px;height:30px;border-radius:50%;
+    background:radial-gradient(circle, #fff 0%, var(--villain-color,#ff2d6f) 40%, transparent 75%);
+    box-shadow:0 0 24px var(--villain-color,#ff2d6f);
+    top:58%;right:14%;opacity:0}
+  .villain-counter.fire{animation:counterProj .7s ease-out forwards}
+  @keyframes counterProj{
+    0%{opacity:0;transform:translate(0,0) scale(.4)}
+    15%{opacity:1;transform:translate(-20px,-6px) scale(1)}
+    100%{opacity:0;transform:translate(-60vw,0) scale(1.6)}
+  }
+
+  .dmg-pop{position:absolute;font-family:'Press Start 2P';font-size:22px;color:#fff;text-shadow:0 0 12px currentColor;pointer-events:none;opacity:0}
+  .dmg-pop.fire{animation:dmgPop .9s ease-out forwards}
+  @keyframes dmgPop{
+    0%{opacity:0;transform:translateY(0) scale(.4)}
+    20%{opacity:1;transform:translateY(-10px) scale(1.2)}
+    100%{opacity:0;transform:translateY(-60px) scale(1)}
+  }
+  .dmg-pop.miss{color:var(--warn)}
+  .dmg-pop.hit-villain{color:#7afcd1}
+  .dmg-pop.hit-hero{color:#ff2d6f}
+
+  .shake{animation:shake .4s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px) rotate(-2deg)}
+    40%{transform:translateX(8px) rotate(2deg)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+  .flash-red{animation:flashRed .4s}
+  @keyframes flashRed{0%{filter:brightness(1)}50%{filter:brightness(2) hue-rotate(-20deg)}100%{filter:brightness(1)}}
+  .flash-cyan{animation:flashCyan .4s}
+  @keyframes flashCyan{0%{filter:brightness(1)}50%{filter:brightness(1.6) drop-shadow(0 0 24px #00f0ff)}100%{filter:brightness(1)}}
+
+  /* ====== CAIXA DE PERGUNTA ====== */
+  .qbox{border:2px solid var(--hero-cyan);background:linear-gradient(180deg, rgba(6,18,36,.95), rgba(2,8,18,.98));padding:12px 14px;position:relative;flex-shrink:0}
+  .qbox::before{content:"";position:absolute;top:-2px;left:-2px;right:-2px;height:3px;background:linear-gradient(90deg, transparent, var(--hero-cyan), transparent)}
+  .q-header{display:flex;justify-content:space-between;align-items:center;font-family:'Press Start 2P';font-size:8px;color:var(--hero-cyan);margin-bottom:8px;gap:8px}
+  .q-header .ataque{color:var(--good);text-align:right}
+  .q-text{font-family:'VT323';font-size:22px;line-height:1.15;color:var(--text);margin-bottom:10px;min-height:30px}
+  .q-options{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+  .opt{font-family:'VT323';font-size:18px;padding:8px 10px;background:rgba(4,12,24,.7);border:1px solid #1a2c4e;color:var(--text);cursor:pointer;text-align:left;transition:all .15s ease;display:flex;align-items:flex-start;gap:6px}
+  .opt:hover{border-color:var(--hero-cyan);background:rgba(0,40,60,.5);color:#fff}
+  .opt.selected{border-color:var(--good);background:rgba(57,255,140,.12);color:var(--good);box-shadow:0 0 12px rgba(57,255,140,.35)}
+  .opt.correct{border-color:var(--good);background:rgba(57,255,140,.2);color:var(--good);box-shadow:0 0 14px rgba(57,255,140,.5);animation:correctPulse .5s}
+  .opt.wrong{border-color:var(--danger);background:rgba(255,45,111,.18);color:var(--danger);box-shadow:0 0 14px rgba(255,45,111,.45)}
+  @keyframes correctPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+  .opt b{font-family:'Press Start 2P';font-size:11px;color:var(--hero-cyan);min-width:18px}
+  .opt.correct b{color:var(--good)}
+  .opt.wrong b{color:var(--danger)}
+
+  .q-actions{display:flex;gap:8px;justify-content:flex-end}
+  .qbtn{font-family:'Press Start 2P';font-size:10px;padding:9px 16px;background:rgba(4,12,24,.85);color:var(--hero-cyan);border:2px solid var(--hero-cyan);cursor:pointer;letter-spacing:1px;transition:all .15s ease;flex:1 1 auto;text-align:center}
+  .qbtn:hover:not(:disabled){background:rgba(0,40,60,.5);box-shadow:0 0 14px rgba(0,240,255,.4)}
+  .qbtn:disabled{opacity:.4;cursor:not-allowed}
+  .qbtn.secondary{color:var(--muted);border-color:#1a2c4e}
+  .qbtn.secondary:hover:not(:disabled){color:var(--text);border-color:var(--muted)}
+
+  /* ====== TELA DE FIM ====== */
+  .end-stack{text-align:center;max-width:600px;margin:auto 0;padding:20px 0;width:100%}
+  .end-title{font-family:'Orbitron';font-weight:900;font-size:64px;margin-bottom:10px}
+  .end-title.win{color:var(--hero-cyan);text-shadow:0 0 30px var(--hero-cyan)}
+  .end-title.lose{color:var(--danger);text-shadow:0 0 30px var(--danger)}
+  .end-sub{font-family:'Press Start 2P';font-size:11px;color:var(--text);opacity:.85;margin-bottom:24px;line-height:1.6}
+  .end-stats{font-family:'VT323';font-size:22px;color:var(--muted);margin-bottom:30px}
+  .end-stats b{color:var(--hero-cyan)}
+
+  /* topbar pequena */
+  .topbar{position:fixed;top:10px;left:10px;font-family:'Press Start 2P';font-size:7px;color:var(--hero-cyan);opacity:.6;letter-spacing:2px;z-index:100;pointer-events:none}
+  .topbar-right{position:fixed;top:10px;right:10px;font-family:'Press Start 2P';font-size:7px;color:var(--muted);opacity:.6;letter-spacing:2px;z-index:100;pointer-events:none}
+
+  /* RESPONSIVIDADE */
+  @media (max-width: 1024px) {
+    .sprite{width:120px;height:120px}
+    .q-text{font-size:20px}
+  }
+
+  @media (max-width: 768px) {
+    .game-title{font-size: clamp(32px, 7vw, 70px)}
+    .card-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+    .q-options{grid-template-columns:1fr}
+    .sprite{width:100px;height:100px}
+    .hud-top{gap:8px}
+  }
+
+  @media (max-width: 480px){
+    .screen{padding:10px 8px}
+    .select-screen{padding:16px 8px}
+    .hud-top{grid-template-columns:1fr 1fr; gap:6px}
+    .score-pill{grid-column:1/-1; order:-1; font-size:9px; padding:6px 10px}
+    .card-grid{grid-template-columns:1fr} 
+    .arena{min-height: 160px}
+    .sprite{width:76px;height:76px}
+    .hero-zone{left: 2%}
+    .villain-zone{right: 2%}
+    .q-text{font-size:16px; margin-bottom:8px; min-height: 20px}
+    .opt{font-size:14px; padding:6px 8px; gap:4px}
+    .opt b{font-size:9px; min-width: 14px}
+    .dmg-pop{font-size:14px}
+    .qbtn{font-size: 8px; padding: 10px 6px}
+    .end-title{font-size: 32px}
+    .title-tag{font-size: 8px; margin-bottom: 12px}
+    .game-title{font-size: clamp(24px, 10vw, 36px); line-height: 1.1; letter-spacing: -1px;}
+    .game-subtitle{font-size: 10px; line-height:1.6; margin-top: 16px; padding:0 10px}
+    .start-btn{font-size: 11px; padding: 12px 20px; margin-top:20px}
+    .topbar {font-size: 5px; letter-spacing: 1px}
+    .topbar-right {display: none}
+    .title-desc {font-size: 15px !important; padding:0 10px; line-height: 1.2; margin-top:20px !important}
+    .hp-label{font-size: 8px}
+    .hp-label .val{font-size: 7px}
+    .select-header{font-size: 12px}
+    .select-sub{font-size: 18px}
+    .card-name{font-size: 11px}
+    .card-tag{font-size: 14px}
+    .q-header{font-size: 7px}
+  }
+
+  @media (max-height: 700px){
+    .sprite{width:90px;height:90px}
+    .arena{min-height: 160px}
+    .q-text{margin-bottom:6px; font-size:18px}
+    .q-options{gap:4px; margin-bottom:6px}
+    .select-screen{justify-content: flex-start}
+    .battle-wrap{padding: 6px; gap:6px}
+    .qbox{padding: 8px 10px}
+    .hud-top{gap:6px}
+    .game-title{font-size: 50px}
+    .start-btn{margin-top: 24px}
+  }
+  @media (max-height: 500px){
+    .sprite{width:70px;height:70px}
+    .arena{min-height: 120px}
+    .score-pill{display:none} /* Esconde o turno em telas muito baixas p/ ganhar espaço */
+    .hud-top{grid-template-columns:1fr 1fr} 
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">SYS://CCIH.OS_v2.6 — STATUS: ONLINE</div>
+<div class="topbar-right">▮▮▮▮▮ SECURE LINK</div>
+
+<div id="app">
+
+  
+  <!-- ====== AUTH SCREEN ====== -->
+  <section class="screen" id="screen-auth">
+    <div class="title-stack">
+      <div class="title-tag">IDENTIFICAÇÃO NECESSÁRIA</div>
+      <h1 class="game-title" style="font-size: clamp(24px, 6vw, 60px);">ACESSO<br>CCIH</h1>
+      <p class="game-subtitle" id="auth-error" style="color: var(--danger); min-height: 20px;"></p>
+      
+      <div class="auth-form" id="auth-form-container" style="margin: 30px auto;">
+        <input type="email" id="auth-email" class="auth-input" placeholder="E-MAIL">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="SENHA">
+        <input type="text" id="auth-name" class="auth-input" placeholder="NOME DE AGENTE" style="display:none;">
+        <button class="start-btn blink" id="btn-auth-submit" style="margin-top: 15px;">▶ CONECTAR</button>
+        <p class="auth-toggle" id="auth-toggle-mode">Não tem conta? Cadastrar</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== RANKING SCREEN ====== -->
+  <section class="screen" id="screen-rank">
+    <div class="title-stack">
+      <div class="title-tag">PERFORMANCE GLOBAL</div>
+      <h2 class="select-header">▸ RANKING DE AGENTES ◂</h2>
+      
+      <div style="overflow-x: auto; width: 100%; max-width: 500px; margin: 0 auto;">
+        <table class="rank-table" id="rank-table" style="margin: 20px auto;">
+          <thead><tr><th>POS</th><th>AGENTE</th><th>PONTUAÇÃO MÁX.</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      
+      <div style="margin-top:30px">
+        <button class="qbtn secondary" id="btn-rank-back">◂ VOLTAR</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== TELA TÍTULO ====== -->
+  <section class="screen active" id="screen-title">
+    <div class="title-stack">
+      <div class="title-tag">▸ INICIANDO PROTOCOLO DE BIOSSEGURANÇA ◂</div>
+      <h1 class="game-title">PROTOCOLO<br>C·C·I·H</h1>
+      <p class="game-subtitle">BATALHA CONTRA OS <b>VILÕES DA INFECÇÃO</b></p>
+            <button class="start-btn blink" id="btn-start">▶ INICIAR MISSÃO</button>
+      <br><button class="btn-rank" id="btn-view-rank">★ VER RANKING GLOBAL ★</button>
+      <p class="auth-toggle" id="btn-logout" style="margin-top: 20px; font-size:16px;">[ Encerrar Sessão ]</p>
+      <p class="title-desc" style="font-family:'VT323';font-size:18px;color:var(--muted);margin-top:24px;max-width:520px">
+        Você é parte da equipe de Controle de Infecção Hospitalar. Cada acerto ativa um protocolo. Cada erro, o vilão se fortalece. <span style="color:var(--danger)">A prevenção é sua arma mais poderosa.</span>
+      </p>
+    </div>
+  </section>
+
+  
+  <!-- ====== TELA MAPA ====== -->
+  <section class="screen map-screen" id="screen-map">
+    <div class="map-header">
+      <div class="map-stat">⭐ <span id="map-score-display">0</span></div>
+    </div>
+    
+    <div class="map-scroll-area" id="map-container">
+      <!-- Generated by JS -->
+    </div>
+    
+    <div class="map-navbar">
+      <button class="map-nav-item active" onclick="go('map')">🗺️</button>
+      <button class="map-nav-item" onclick="go('rank')">🏆</button>
+    </div>
+  </section>
+
+  <!-- ====== SELEÇÃO DE HERÓI ====== -->
+  <section class="screen select-screen" id="screen-hero">
+    <h2 class="select-header">▸ SELECIONE SEU HERÓI ◂</h2>
+    <p class="select-sub">Cada profissional domina protocolos diferentes</p>
+    <div class="card-grid" id="hero-grid"></div>
+    <div style="margin-top:20px"><button class="qbtn secondary" data-back="title">◂ VOLTAR</button></div>
+  </section>
+
+  <!-- ====== SELEÇÃO DE VILÃO ====== -->
+  <section class="screen select-screen" id="screen-villain">
+    <h2 class="select-header">▸ ESCOLHA SEU OPONENTE ◂</h2>
+    <p class="select-sub">Cada vilão exige conhecimento específico</p>
+    <div class="card-grid" id="villain-grid"></div>
+    <div style="margin-top:20px"><button class="qbtn secondary" data-back="hero">◂ VOLTAR</button></div>
+  </section>
+
+  <!-- ====== TELA DE BATALHA ====== -->
+  <section class="screen" id="screen-battle">
+    <div class="battle-wrap">
+      <!-- HUD -->
+      <div class="hud-top">
+        <div class="hp-card hero">
+          <div class="hp-label"><span class="name" id="hero-name">HERÓI</span><span class="val" id="hero-hp-val">10/10</span></div>
+          <div class="hp-bar"><div class="fill" id="hero-fill"></div></div>
+        </div>
+        <div class="score-pill">
+          <span class="turn" id="turn-label">TURNO 1</span>
+          <span id="score-label">ACERTOS 0/0</span>
+        </div>
+        <div class="hp-card villain">
+          <div class="hp-label"><span class="name" id="villain-name">VILÃO</span><span class="val" id="villain-hp-val">10/10</span></div>
+          <div class="hp-bar"><div class="fill" id="villain-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- Arena -->
+      <div class="arena" id="arena">
+        <div class="hero-zone">
+          <div class="sprite" id="hero-sprite">
+            <div class="hero-aura"></div>
+            <div class="hero-aura inner"></div>
+          </div>
+          <div class="shadow-disc"></div>
+        </div>
+        <div class="villain-zone">
+          <div class="sprite" id="villain-sprite"></div>
+          <div class="villain-drip"></div>
+          <div class="shadow-disc"></div>
+        </div>
+        <div class="fx-layer">
+          <div class="projectile" id="projectile"></div>
+          <div class="villain-counter" id="villain-counter"></div>
+        </div>
+        <div class="floor-tags">
+          <span>◆ EPI</span><span>◆ ASSEPSIA</span><span>◆ PROTOCOLO</span><span>◆ VIGILÂNCIA</span>
+        </div>
+      </div>
+
+      <!-- Pergunta -->
+      <div class="qbox">
+        <div class="q-header">
+          <span id="q-id">PERGUNTA 1/5</span>
+          <span class="ataque" id="q-attack">ATAQUE: PROTOCOLO ATIVO</span>
+        </div>
+        <p class="q-text" id="q-text">Carregando...</p>
+        <div class="q-options" id="q-options"></div>
+        <div class="q-actions">
+          <button class="qbtn secondary" data-back="villain">◂ VOLTAR</button>
+          <button class="qbtn" id="btn-confirm" disabled>CONFIRMAR ▶</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== TELA DE FIM ====== -->
+  <section class="screen" id="screen-end">
+    <div class="end-stack">
+      <h1 class="end-title" id="end-title">VITÓRIA</h1>
+      <p class="end-sub" id="end-sub">PROTOCOLO BEM-SUCEDIDO</p>
+      <p class="end-stats" id="end-stats">Acertos: <b>0/0</b> · Dano evitado: <b>0</b></p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="qbtn" id="btn-replay">↻ NOVA BATALHA</button>
+        <button class="qbtn secondary" data-back="title">⌂ MENU</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ====== SPRITES SVG (definidos em JS) ====== -->
+
+<script type="module">
+// =====================================================
+//   PROTOCOLO CCIH — JOGO DE BATALHA EDUCACIONAL
+// =====================================================
+
+// ---------- SPRITES SVG ----------
+// Os sprites são pixel-art em SVG (shape-rendering: crispEdges)
+// Estilo simplificado mas reconhecível, com cores temáticas.
+
+const SPRITES = {
+  // ===== HERÓIS =====
+  lelia: '<img src="/src/assets/images/illu_lelia_1779370210246.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  juju: '<img src="/src/assets/images/illu_juju_1779370224795.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+
+  // ===== VILÕES =====
+  sepzilla: '<img src="/src/assets/images/illu_sepzilla_1779370156046.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  pseudomor: '<img src="/src/assets/images/illu_pseudomor_1779370106612.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  klebzor: '<img src="/src/assets/images/illu_klebzor_1779370139683.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  tubotox: '<img src="/src/assets/images/illu_tubotox_1779370090969.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  cateterion: '<img src="/src/assets/images/illu_cateterion_1779370172698.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  staphurion: '<img src="/src/assets/images/illu_staphurion_1779370188355.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  escherika: '<img src="/src/assets/images/illu_escherika_1779370122860.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+};
+
+// ---------- DADOS DOS HERÓIS ----------
+const HEROES = {
+  lelia: {
+    id:'lelia',
+    name:'DRA. LÉLIA',
+    role:'Liderança CCIH',
+    tag:'Estratégia · Protocolos · Vigilância',
+    hp:12,
+    bonus:'Recupera 1 HP a cada 2 acertos consecutivos',
+    color:'#00f0ff',
+    attackName:'PROTOCOLO ATIVO',
+  },
+  juju: {
+    id:'juju',
+    name:'DR. JUJU',
+    role:'Intervenção Técnica',
+    tag:'Bundle · Assepsia · Procedimentos',
+    hp:10,
+    bonus:'Causa +1 de dano quando acerta seguidas',
+    color:'#7afcd1',
+    attackName:'BUNDLE TÉCNICO',
+  },
+};
+
+// ---------- DADOS DOS VILÕES + PERGUNTAS ----------
+// ---------- DADOS DOS VILÕES + PERGUNTAS ----------
+const VILLAINS = {
+  // FACÇÃO RESPIRATORIA
+  tubotox: {
+    id:'tubotox',
+    name:'TUBOTOX',
+    sci:'PAV (Pneumonia Associada à Ventilação)',
+    tag:'O Carrasco dos Pulmões',
+    faction: 'Facção Respiratória',
+    hp:10,
+    color:'#52b8e8',
+    glow:'rgba(82,184,232,0.55)',
+    questions: [
+      {q:'Qual a inclinação ideal da cabeceira para prevenir PAV?',
+       a:['0 graus','15-20 graus','30-45 graus','90 graus'],
+       correct:2, expl:'Cabeceira a 30-45 graus previne microaspirações.'},
+      {q:'Qual destas práticas é essencial no bundle de prevenção de PAV?',
+       a:['Higiene oral com antisséptico adequado','Apenas limpar o tubo por fora','Evitar aspirações','Trocar o circuito ventilatório a cada 12h'],
+       correct:0, expl:'A higiene oral reduz carga bacteriana que pode descer para os pulmões.'},
+      {q:'Sobre a troca dos circuitos do respirador:',
+       a:['Deve ser diária','apenas quando visivelmente sujos ou com mau funcionamento','Uma vez por semana fixo','A cada paciente apenas'],
+       correct:1, expl:'Trocas desnecessárias do circuito quebram o sistema fechado e aumentam risco de infecção!'},
+      {q:'Extubação precoce e interrupção diária da sedação ajudam a evitar PAV?',
+       a:['Sim, são medidas obrigatórias do bundle','Não, sedação profunda previne PAV','Apenas em crianças','Mito antigo'],
+       correct:0, expl:'Quanto menos tempo entubado e sedado, menor o risco de PAV.'},
+    ]
+  },
+  klebzor: {
+    id:'klebzor',
+    name:'KLEBZOR MDR',
+    sci:'Klebsiella pneumoniae',
+    tag:'A Criação Multirresistente',
+    faction: 'Facção Respiratória',
+    hp:11,
+    color:'#a855f7',
+    glow:'rgba(168,85,247,0.55)',
+    questions:[
+      {q:'KPC (Klebsiella produtora de carbapenemase) requer qual precaução?',
+        a:['Padrão somente','Contato + isolamento','Gotículas','Nenhuma'],
+        correct:1, expl:'KPC exige precaução de CONTATO e isolamento rigoroso.'},
+      {q:'Para combater a blindagem multirresistente (MDR), o que a equipe não deve fazer?',
+        a:['Guiar tratamento por cultura','Higienizar mãos 5 momentos','Usar antimicrobianos indiscriminadamente','Fazer cohort de pacientes'],
+        correct:2, expl:'O uso excessivo de antimicrobianos seleciona e fortalece bactérias MDR.'},
+      {q:'Limpeza de superfícies no quarto de paciente KPC:',
+        a:['Apenas usar álcool 70% no chão','Desinfecção terminal rigorosa com produto apropriado','Apenas passar pano molhado','KPC não sobrevive em superfícies'],
+        correct:1, expl:'Klebsiella sobrevive em mobiliários; exige limpeza e desinfecção terminal rigorosa.'},
+      {q:'Quando paciente colonizado com Klebsiella MDR recebe alta, a unidade deve:',
+        a:['Isolar o leito por 72h','Bloquear novos pacientes sem limpeza','Realizar desinfecção terminal imediata','Aplicar radiação apenas'],
+        correct:2, expl:'Limpeza concorrente diária e desinfecção terminal na alta são imprescindíveis.'}
+    ]
+  },
+
+  // FACÇÃO CORRENTE SANGUÍNEA
+  cateterion: {
+    id:'cateterion',
+    name:'CATETERION',
+    sci:'Infecção Primária de Corrente Sanguínea (IPCS)',
+    tag:'O Invasor de Acessos',
+    faction: 'Facção Corrente Sanguínea',
+    hp:9,
+    color:'#e83a5a',
+    glow:'rgba(232,58,90,0.55)',
+    questions: [
+      {q:'Qual a maneira correta de realizar o "Scrub the Hub" (fricção do canhão)?',
+       a:['Aplicar álcool e secar em 1s','Friccionar com antisséptico (álcool 70% ou clorexidina) por 15s','Não manipular','Lavar com soro gelado'],
+       correct:1, expl:'A fricção vigorosa com antisséptico por 5-15 segundos é vital antes de acessar o cateter.'},
+      {q:'Curativos de cateter transparente precisam ser trocados em quanto tempo (ausência de sujidade)?',
+       a:['24 horas','48 horas','A cada 7 dias','Se for gaze, 7 dias, se for filme transparente, 48h'],
+       correct:2, expl:'Filmes transparentes intactos duram até 7 dias, curativos com gaze a cada 48h.'},
+      {q:'Na inserção do Cateter Venoso Central (CVC), qual EPI é obrigatório?',
+       a:['Apenas luva de procedimento','Apenas máscara e luva estéril','Paramentação máxima local e de barreira','Nenhuma barreira'],
+       correct:2, expl:'Precisa usar gorro, máscara, capote estéril, luva estéril e campo estéril grande.'},
+      {q:'Como reduzir o risco de IPCS (Infecção de Corrente Sanguínea)?',
+       a:['Manter acessos centrais por pelo menos 30 dias', 'Remover acessos venosos centrais desnecessários', 'Trocar o sítio todo dia', 'Não ocluir o cateter'],
+       correct:1, expl:'Sempre checar diariamente a necessidade do cateter e removê-lo assim que possível!'}
+    ]
+  },
+  staphurion: {
+    id:'staphurion',
+    name:'MRSA PRIME',
+    sci:'Staphylococcus aureus',
+    tag:'A Purulência Dourada',
+    faction: 'Facção Corrente Sanguínea',
+    hp:11,
+    color:'#f0b800',
+    glow:'rgba(240,184,0,0.55)',
+    questions: [
+      {q:'Qual é a medida base contra MRSA na manipulação do paciente (Precauções de Contato)?',
+       a:['Higiene de mãos prévia + Luvas de procedimento e Avental','Máscara N95','Isolamento em pressão negativa','Tocar feridas com mãos nuas'],
+       correct:0, expl:'Luva e avental para contato com o paciente MRSA, após higienizar as mãos.'},
+      {q:'Ao finalizar o curativo infectado de MRSA, o profissional deve:',
+       a:['Lavar o material torcendo as luvas','Descartar o material infectante em saco branco/lixo comum','Tirar o EPI e higienizar as mãos','Usar o mesmo avental no leito ao lado'],
+       correct:2, expl:'A desparamentação imediata e fricção/lavagem das mãos previnem carregar MRSA adiante.'},
+      {q:'Antisséptico de eleição para preparo de pele (e destruição de S. aureus):',
+       a:['Álcool 70% líquido apenas','Clorexidina alcoólica > 0,5% com tempo de secagem adequado','Água oxigenada vol 10','Soro fisiológico'],
+       correct:1, expl:'Clorexidina combinada com álcool é a mais recomendada.'},
+      {q:'Por onde este patógeno tem maior facilidade de invadir a corrente sanguínea?',
+       a:['Pelo ar (Gotículas)','Inalação (Aerossol)','Quebra de barreira da pele (Feridas operatórias, Acessos Vasculares)','Oral (Comida contaminada)'],
+       correct:2, expl:'Staphylococcus vive na pele e entra toda vez que uma incisão, arranhão ou cateter quebra essa barreira.'}
+    ]
+  },
+
+  // FACÇÃO URINÁRIA
+  escherika: {
+    id:'escherika',
+    name:'URO-SEPSIS',
+    sci:'E. coli UTI',
+    tag:'A Lombriga Vesical Tóxica',
+    faction: 'Facção Urinária',
+    hp:9,
+    color:'#70c040',
+    glow:'rgba(112,192,64,0.55)',
+    questions:[
+      {q:'Onde a bolsa coletora da Sonda Vesical de Demora (SVD) deve ficar posicionada?',
+       a:['Assentada no chão','Sempre acima do nível da bexiga','Abaixo do nível da bexiga, sem tocar o chão','No nível do paciente'],
+       correct:2, expl:'Se for acima da bexiga, ocorre refluxo de urina. Tocar no chão contamina a bolsa!'},
+      {q:'Na inserção da sonda vesical, qual técnica previne infecção por E. coli?',
+       a:['Técnica limpa','Técnica asséptica estrita','Apenas usar luvas limpas','Injeção de antibiótico na sonda'],
+       correct:1, expl:'Sondagem vesical é procedimento estéril, exige técnica e material asséptico.'},
+      {q:'Qual a ação diária simples com maior evidência para reduzir Infecção do Trato Urinário Associada a Cateter?',
+       a:['Trocar a sonda todos os dias','Dar antibiótico profilático','Avaliação diária da necessidade e retirada precoce','Limpar a sonda com Cloro'],
+       correct:2, expl:'O tempo de permanência da sonda é o principal fator de risco, remova assim que possível.'},
+      {q:'Na higiene íntima do paciente com SVD, deve-se:',
+       a:['Limpar da região anal para a uretral','Lavar vigorosamente a sonda jogando água na conexão','A higienização deve ser diária com água e sabão (movimento sem retorno)','Evitar banho do paciente'],
+       correct:2, expl:'Evitar trazer bactérias perianais (E. coli) para a uretra. Higiene diária basta.'}
+    ]
+  },
+
+  // FACÇÃO AMBIENTES ÚMIDOS
+  pseudomor: {
+    id:'pseudomor',
+    name:'PSEUDOMOR HYDRA',
+    sci:'Pseudomonas aeruginosa',
+    tag:'A Mutação dos Ambientes Úmidos',
+    faction: 'Facção Ambientes Úmidos',
+    hp:10,
+    color:'#39ff8c',
+    glow:'rgba(57,255,140,0.55)',
+    questions:[
+      {q:'Para reduzir a colonização de Pseudomonas nos respiradores, a conduta correta é:',
+       a:['Burlar a rotina e manter água parada','Desinfecção correta e secagem rigorosa de materiais e circuitos','Usar apenas água potável no ventilador','Fugir das inspeções'],
+       correct:1, expl:'Sem secagem e manuseio asséptico, umidificadores viram poças tóxicas ideais para ela.'},
+      {q:'Áreas na UTI onde Pseudomonas costuma se entocar formando Biofilme:',
+       a:['Grades secas da cama','Pias, ralos úmidos e reservatórios de água de equipamentos','Telefones','Sapatos'],
+       correct:1, expl:'Pseudomonas é hidrofílica (ama água) e prolifera muito nesses locais.'},
+      {q:'Uso de água estéril vs Água potável:',
+       a:['Umidificadores de O2 precisam de água potável','Umidificadores/nebulizadores e frascos sugadores devem sempre utilizar água destilada/estéril','Tanto faz','Pseudomonas morre na água potável'],
+       correct:1, expl:'Apenas água/soluções estéreis e com troca frequente conforme POP do hospital.'},
+      {q:'Qual o princípio ativo costuma ser eficaz contra biofilmes em dispositivos médicos?',
+       a:['Água quente apenas','Compostos peróxidos ou produtos enzimáticos (pré-limpeza) num POP bem-feito','Varrer poeira','Somente álcool fixará o biofilme'],
+       correct:1, expl:'Ação multi-enzimática degrada a matriz do biofilme facilitando a desinfecção.'}
+    ]
+  },
+
+  // BOSS FINAL
+  sepzilla: {
+    id:'sepzilla',
+    name:'SEPZILLA, O FINAL',
+    sci:'Choque Séptico / Falência Múltipla',
+    tag:'A Consequência Irreversível',
+    faction: '👑 Boss Final',
+    hp:14,
+    color:'#ff2d6f',
+    glow:'rgba(255,45,111,0.7)',
+    questions:[
+      {q:'Sepzilla foi despertado! Qual é a medida principal do Pacote de Sepse (1 Hora)?',
+       a:['Aguardar exames por 12h','Iniciar antimicrobiano empírico amplo espectro após coletar culturas, além do suporte hemodinâmico','Pedir parecer para infecto apenas','Realizar sondagem de rotina'],
+       correct:1, expl:'Atraso no antibiótico em sepse = morte de órgãos vitais a cada hora.'},
+      {q:'No quadro de sepse agressiva ativada pelas infecções cruzadas, o que costuma cair drasticamente e alertar a enfermagem?',
+       a:['Glicemia e temperatura apenas','Frequência respiratória para 5 irpm','Pressão Arterial (Hipotensão) e Nível de Consciência (Lactato sobe)','Cor do cabelo do paciente'],
+       correct:2, expl:'O choque se apresenta pela má perfusão e PA em queda!'},
+      {q:'"Sepzilla" ganha força se a equipe esquece dos Bundles (Medidas Agrupadas). Qual a importância de um Bundle?',
+       a:['São apenas papéis sem utilidade prática','Quando executados sistematicamente por completo, resultam em melhoria drástica no desfecho e queda em infecções','Cada um escolhe o que quer fazer','Não interferem no Boss'],
+       correct:1, expl:'O conceito de bundle não é fazer 3 de 5 passos, mas fazer TODOS. 100% ou falha.'},
+      {q:'Como combater o foco infeccioso escondido que energiza Sepzilla (Ex: Cateter)?',
+       a:['Dobrar o antibiótico e manter o cateter','Remoção do foco causador / Fonte primária (SVD, CVC ou dreno) assim que identificado e possível','Ignorar','Isolar e esperar'],
+       correct:1, expl:'Deixar a porta de entrada (foco ativo) ligada ao paciente torna o tratamento ineficaz.'},
+      {q:'O que poderia ter impedido completamente a invocação de Sepzilla?',
+       a:['Surtos genéticos do paciente','Lavagem massiva de sangue do paciente','Higienização constante das mãos e obediência cega/fiel a precauções e protocolos da CCIH','Corte nas verbas do hospital'],
+       correct:2, expl:'A higienização e as melhores práticas previnem que bactérias ganhem força letal.'}
+    ]
+  }
+};
+
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+
+// ---------- ESTADO ----------
+const state = {
+  hero:null, villain:null,
+  heroHP:0, heroMax:0,
+  villainHP:0, villainMax:0,
+  qIndex:0, score:0, total:0,
+  selected:null, locked:false,
+  combo:0,
+};
+
+// ---------- UTILS ----------
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+function go(screenId){
+  $$('.screen').forEach(s=>{
+    s.classList.remove('active');
+  });
+  const target = $('#screen-'+screenId);
+  target.classList.add('active');
+  target.scrollTop = 0;
+}
+function setVar(el, name, value){ el.style.setProperty(name, value); }
+
+
+
+// ====== ESTADO DO PROGRESSO ======
+const userProgress = {
+  unlockedNodes: ['sepzilla'],
+  completedNodes: [],
+  score: 0
+};
+
+const MAP_DATA = [
+  {
+    id: 'sec1',
+    title: 'SEÇÃO 1',
+    subtitle: 'Navegue pelas IRAS',
+    color: '#00f0ff',
+    bg: '#0a8aa6',
+    nodes: [
+      { id: 'sepzilla', type: 'villain' },
+      { id: 'pseudomor', type: 'villain' },
+      { id: 'escherika', type: 'villain' },
+      { id: 'tubotox', type: 'villain' },
+      { id: 'klebzor', type: 'villain' },
+      { id: 'cateterion', type: 'villain' },
+      { id: 'staphurion', type: 'villain' }
+    ]
+  },
+  {
+    id: 'sec2',
+    title: 'SEÇÃO 2',
+    subtitle: 'Precauções de Contato',
+    color: '#ffcf3a',
+    bg: '#cc9900',
+    nodes: [
+      { id: 'locked_1', type: 'locked' },
+      { id: 'locked_2', type: 'locked' },
+      { id: 'locked_3', type: 'locked' }
+    ]
+  },
+  {
+    id: 'sec3',
+    title: 'SEÇÃO 3',
+    subtitle: 'Segurança do Paciente',
+    color: '#ff4d6d',
+    bg: '#cc0033',
+    nodes: [
+      { id: 'locked_4', type: 'locked' },
+      { id: 'locked_5', type: 'locked' }
+    ]
+  }
+];
+
+
+
+function buildMap() {
+  const container = $('#map-container');
+  container.innerHTML = '';
+  $('#map-score-display').innerText = userProgress.score;
+  
+  MAP_DATA.forEach(section => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'map-section';
+    
+    // Header
+    secDiv.innerHTML += `
+      <div class="map-section-header" style="background: ${section.color}">
+        <h3 style="color: ${section.bg}">${section.title}</h3>
+        <p style="color: #000"><b>${section.subtitle}</b></p>
+      </div>
+    `;
+    
+    const pathDiv = document.createElement('div');
+    pathDiv.className = 'map-path';
+    pathDiv.style.position = 'relative';
+    pathDiv.style.width = '100%';
+    
+    const offsets = [0, 60, 80, 60, 0, -60, -80, -60];
+    const nodeSpacing = 110; 
+    
+    // We create a wrapper that centers everything.
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.margin = '0 auto';
+    wrapper.style.width = '300px'; // Fixed logical width for the path
+    wrapper.style.height = (section.nodes.length * nodeSpacing) + 'px';
+    
+    let svgPathHtml = `<svg viewBox="0 0 300 ${section.nodes.length * nodeSpacing}" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1">`;
+    
+    for(let i=0; i < section.nodes.length - 1; i++) {
+        const x1 = offsets[i % offsets.length] + 150; 
+        const y1 = i * nodeSpacing + 40; 
+        const x2 = offsets[(i+1) % offsets.length] + 150;
+        const y2 = (i+1) * nodeSpacing + 40;
+        
+        const node1 = section.nodes[i];
+        
+        let pathColor = '#303b4b'; 
+        if (userProgress.completedNodes.includes(node1.id)) {
+            pathColor = section.color;
+        }
+        
+        svgPathHtml += `
+          <path d="M${x1},${y1} Q${x1},${y1+50} ${(x1+x2)/2},${(y1+y2)/2} T${x2},${y2}" 
+                fill="none" stroke="${pathColor}" stroke-width="16" stroke-linecap="round" />
+          <path d="M${x1},${y1} Q${x1},${y1+50} ${(x1+x2)/2},${(y1+y2)/2} T${x2},${y2}" 
+                fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="16" stroke-linecap="round" stroke-dasharray="10, 10" />
+        `;
+    }
+    svgPathHtml += '</svg>';
+    wrapper.innerHTML = svgPathHtml;
+    
+    const nodesContainer = document.createElement('div');
+    nodesContainer.style.position = 'absolute';
+    nodesContainer.style.top = '0';
+    nodesContainer.style.left = '0';
+    nodesContainer.style.width = '100%';
+    nodesContainer.style.height = '100%';
+    nodesContainer.style.zIndex = '2';
+    
+    section.nodes.forEach((node, idx) => {
+      const xOffset = offsets[idx % offsets.length] + 150 - 40; // center is 150, node is 80x80 (half is 40)
+      const yOffset = idx * nodeSpacing;
+      
+      const isDone = userProgress.completedNodes.includes(node.id);
+      let isCurrent = false;
+      let isLocked = true;
+      
+      if (node.type !== 'locked') {
+        const nodeIndex = section.nodes.findIndex(n => n.id === node.id);
+        const prevNodeId = nodeIndex > 0 ? section.nodes[nodeIndex-1].id : null;
+        
+        if (isDone) {
+          isLocked = false;
+        } else if (nodeIndex === 0 || (prevNodeId && userProgress.completedNodes.includes(prevNodeId))) {
+          isCurrent = true;
+          isLocked = false;
+        }
+      }
+      
+      let stateClass = 'locked';
+      if (isDone) stateClass = 'done';
+      if (isCurrent) stateClass = 'current';
+      
+      const nodeEl = document.createElement('div');
+      nodeEl.className = `map-node ${stateClass}`;
+      nodeEl.style.position = 'absolute';
+      nodeEl.style.left = `${xOffset}px`;
+      nodeEl.style.top = `${yOffset}px`;
+      
+      if (node.type === 'villain') {
+        const v = VILLAINS[node.id];
+        let imgHtml = '';
+        if (isLocked) {
+          imgHtml = `<span class="locked-icon">🔒</span>`;
+        } else {
+           const match = SPRITES[node.id].match(/src="(.*?)"/);
+           const src = match ? match[1] : '';
+           imgHtml = `<img src="${src}" />`;
+        }
+        nodeEl.innerHTML = imgHtml;
+        
+        nodeEl.addEventListener('click', () => {
+          if (!isLocked) {
+             nodeEl.style.transform = `scale(0.9)`;
+             setTimeout(() => {
+                nodeEl.style.transform = `scale(1)`;
+                state.villain = v;
+                go('hero');
+             }, 150);
+          }
+        });
+      } else {
+         nodeEl.innerHTML = `<span class="locked-icon">🔒</span>`;
+         nodeEl.addEventListener('click', () => {
+           if (!nodeEl.classList.contains('locked')) return;
+           nodeEl.style.transform = `scale(0.9)`;
+           setTimeout(()=>{
+             nodeEl.style.transform = `scale(1)`;
+           }, 150);
+         });
+      }
+      
+      nodesContainer.appendChild(nodeEl);
+    });
+    
+    wrapper.appendChild(nodesContainer);
+    pathDiv.appendChild(wrapper);
+    secDiv.appendChild(pathDiv);
+    container.appendChild(secDiv);
+  });
+}
+let currentUser = null;
+let isSignUpMode = false;
+
+const elAuthEmail = $('#auth-email');
+const elAuthPass = $('#auth-pass');
+const elAuthName = $('#auth-name');
+const elAuthError = $('#auth-error');
+const elToggleMode = $('#auth-toggle-mode');
+const btnAuthSubmit = $('#btn-auth-submit');
+const btnLogout = $('#btn-logout');
+const btnViewRank = $('#btn-view-rank');
+const btnRankBack = $('#btn-rank-back');
+
+if (elToggleMode) {
+  elToggleMode.addEventListener('click', () => {
+    isSignUpMode = !isSignUpMode;
+    elAuthName.style.display = isSignUpMode ? 'block' : 'none';
+    btnAuthSubmit.textContent = isSignUpMode ? '▶ CADASTRAR' : '▶ CONECTAR';
+    elToggleMode.textContent = isSignUpMode ? 'Já tem conta? Entrar' : 'Não tem conta? Cadastrar';
+    elAuthError.textContent = '';
+  });
+}
+
+if (btnAuthSubmit) {
+  btnAuthSubmit.addEventListener('click', async () => {
+    if(!supabase) {
+      elAuthError.textContent = "Supabase não conectado. Configure as variáveis.";
+      return;
+    }
+    const email = elAuthEmail.value.trim();
+    const pass = elAuthPass.value.trim();
+    const name = elAuthName.value.trim();
+
+    try {
+      elAuthError.textContent = "Processando...";
+      btnAuthSubmit.disabled = true;
+
+      if (isSignUpMode) {
+        if(!name) throw new Error("Nome é obrigatório no cadastro.");
+        const { data, error } = await supabase.auth.signUp({ 
+          email, 
+          password: pass,
+          options: { data: { player_name: name } }
+        });
+        if (error) throw error;
+        elAuthError.textContent = "Cadastro com sucesso! Entrando...";
+        currentUser = data.user;
+        setTimeout(() => go('title'), 1000);
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+        if (error) throw error;
+        currentUser = data.user;
+        go('title');
+      }
+    } catch (err) {
+      elAuthError.textContent = err.message || "Erro na autenticação.";
+    } finally {
+      btnAuthSubmit.disabled = false;
+    }
+  });
+}
+
+if (btnLogout) {
+  btnLogout.addEventListener('click', async () => {
+    if(supabase) await supabase.auth.signOut();
+    currentUser = null;
+    go('auth');
+  });
+}
+
+if (btnViewRank) {
+  btnViewRank.addEventListener('click', async () => {
+    go('rank');
+    const tbody = document.querySelector('#rank-table tbody');
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Carregando dados encriptados...</td></tr>';
+    
+    if(supabase) {
+      // Usa leaderboad
+      const { data, error } = await supabase.from('leaderboard').select('*').order('max_score', { ascending: false }).limit(20);
+      if(error){
+        tbody.innerHTML = '<tr><td colspan="3" style="color:var(--danger)">Falha no link orbital. Verifique a Tabela.</td></tr>';
+        console.error(error);
+        return;
+      }
+      if(!data || data.length === 0){
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhum registro encontrado.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map((r, i) => `
+        <tr>
+          <td class="rank-pos">#${i+1}</td>
+          <td>${r.player_name || 'AGENTE ANONIMO'}</td>
+          <td style="color:var(--good); font-family:'Press Start 2P'; font-size:10px;">${r.max_score}</td>
+        </tr>
+      `).join('');
+    } else {
+       tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Supabase não conectado.</td></tr>';
+    }
+  });
+
+  if(btnRankBack) {
+    btnRankBack.addEventListener('click', () => { buildMap(); go('map'); });
+  }
+}
+
+async function checkAuth() {
+  if(!supabase) { 
+    go('title'); 
+    return;
+  }
+  const { data } = await supabase.auth.getSession();
+  if (data?.session) {
+    currentUser = data.session.user;
+    go('title');
+  } else {
+    go('auth');
+  }
+}
+
+async function saveScore() {
+  if (supabase && currentUser && state.score > 0) {
+    const playerName = currentUser.user_metadata?.player_name || currentUser.email.split('@')[0];
+    const { error } = await supabase.from('scores').insert({
+      user_id: currentUser.id,
+      player_name: playerName,
+      score: state.score,
+      hero_id: state.hero.id
+    });
+    if (error) console.error("Erro ao salvar o score", error);
+  }
+}
+
+// Inicializar na tela de auth se o supabase estiver ativo
+if(supabase) {
+  setTimeout(() => checkAuth(), 50);
+}
+
+// ---------- INIT ----------
+document.addEventListener('DOMContentLoaded', ()=>{
+  $('#btn-start').addEventListener('click', ()=> { buildMap(); go('map'); });
+  $('#btn-replay').addEventListener('click', ()=> { buildMap(); go('map'); });
+  $('[data-back]').forEach(b => b.addEventListener('click', e => {
+  const target = e.target.dataset.back;
+  if(target === 'title' || target === 'villain') {
+    buildMap();
+    go('map');
+  } else {
+    go(target);
+  }
+}));
+  buildHeroGrid();
+  buildVillainGrid();
+});
+
+// ---------- GRIDS ----------
+function buildHeroGrid(){
+  const grid = $('#hero-grid');
+  Object.values(HEROES).forEach(h=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.style.setProperty('--card-color', h.color);
+    card.style.setProperty('--card-glow', h.color.replace(')',',0.45)').replace('rgb','rgba'));
+    card.innerHTML = `
+      <div class="card-sprite">${SPRITES[h.id]}</div>
+      <div class="card-name">${h.name}</div>
+      <div class="card-tag">${h.role}<br><span style="opacity:.7">${h.tag}</span></div>
+      <div class="card-meta">
+        <span>HP <b>${h.hp}</b></span>
+        <span>BÔNUS <b>★</b></span>
+      </div>`;
+    card.addEventListener('click', ()=>{
+      card.style.transform = 'scale(0.95)';
+      card.style.boxShadow = '0 0 40px var(--card-color)';
+      setTimeout(() => {
+        state.hero = h;
+        go('villain');
+        card.style.transform = '';
+        card.style.boxShadow = '';
+      }, 150);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function buildVillainGrid(){
+  const grid = $('#villain-grid');
+  grid.innerHTML = '';
+  grid.style.display = 'flex';
+  grid.style.flexDirection = 'column';
+  grid.style.gap = '24px';
+  
+  // Agrupar vilões por facção
+  const factions = {};
+  Object.values(VILLAINS).forEach(v => {
+    if(!factions[v.faction]) factions[v.faction] = [];
+    factions[v.faction].push(v);
+  });
+
+  for(const [fname, vilList] of Object.entries(factions)){
+    const fBox = document.createElement('div');
+    fBox.innerHTML = `<h3 style="font-family:'Press Start 2P';font-size:12px;color:var(--hero-cyan);margin-bottom:12px;text-align:left;">${fname}</h3>`;
+    const fGrid = document.createElement('div');
+    fGrid.className = 'card-grid';
+    
+    vilList.forEach(v => {
+      const card = document.createElement('div');
+      card.className='card';
+      card.style.setProperty('--card-color', v.color);
+      const glow = v.glow;
+      card.style.setProperty('--card-glow', glow);
+      card.innerHTML = `
+        <div class="card-sprite">${SPRITES[v.id]}</div>
+        <div class="card-name">${v.name}</div>
+        <div class="card-tag"><i>${v.sci}</i><br><span style="opacity:.7">${v.tag}</span></div>
+        <div class="card-meta">
+          <span>HP <b>${v.hp}</b></span>
+          <span>${v.faction.includes('Boss') ? 'NÍVEL <b>MAX</b>' : 'NÍVEL <b>★★★</b>'}</span>
+        </div>`;
+      card.addEventListener('click', ()=>{
+        card.style.transform = 'scale(0.95)';
+        card.style.boxShadow = '0 0 40px var(--card-color)';
+        setTimeout(() => {
+          state.villain = v;
+          startBattle();
+          card.style.transform = '';
+          card.style.boxShadow = '';
+        }, 150);
+      });
+      fGrid.appendChild(card);
+    });
+    fBox.appendChild(fGrid);
+    grid.appendChild(fBox);
+  }
+}
+
+function hexToRgba(hex, alpha=1){
+  const m = hex.replace('#','');
+  const bigint = parseInt(m,16);
+  const r=(bigint>>16)&255, g=(bigint>>8)&255, b=bigint&255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ---------- BATALHA ----------
+async function startBattle(){
+  const h = state.hero, v = state.villain;
+  
+  if (supabase) {
+    $('#q-text').textContent = 'Carregando dados do banco...';
+    $('#q-options').innerHTML = '';
+    $('#btn-confirm').disabled = true;
+    go('battle'); // show loading UI
+
+    try {
+      const { data, error } = await supabase
+        .from('questions_jogo')
+        .select('*')
+        .eq('villain_id', v.id);
+        
+      if (!error && data && data.length > 0) {
+        // Assume format: { question_text, options: string[], correct_index, explanation }
+        v.questions = data.map(dbQ => ({
+          q: dbQ.question_text,
+          a: Array.isArray(dbQ.options) ? dbQ.options : JSON.parse(dbQ.options || '[]'),
+          correct: parseInt(dbQ.correct_index, 10),
+          expl: dbQ.explanation || ''
+        }));
+      } else if (error) {
+        console.error("Supabase fetch error:", error);
+      }
+    } catch (e) {
+      console.error("Supabase connection error:", e);
+    }
+  }
+
+  state.heroHP = state.heroMax = h.hp;
+  state.villainHP = state.villainMax = v.hp;
+  state.qIndex = 0;
+  state.score = 0;
+  state.total = v.questions.length;
+  state.selected = null;
+  state.locked = false;
+  state.combo = 0;
+
+  // sprites
+  $('#hero-sprite').innerHTML = `<div class="hero-aura"></div><div class="hero-aura inner"></div>` + SPRITES[h.id];
+  $('#villain-sprite').innerHTML = SPRITES[v.id];
+
+  // nomes/HP
+  $('#hero-name').textContent = h.name;
+  $('#villain-name').textContent = v.name;
+  updateHPUI();
+
+  // cores temáticas do vilão na arena
+  const arena = $('#arena');
+  arena.style.setProperty('--villain-color', v.color);
+  arena.style.setProperty('--villain-glow', v.glow);
+  $('#screen-battle').style.setProperty('--villain-color', v.color);
+  $('#screen-battle').style.setProperty('--villain-glow', v.glow);
+  document.querySelector('.hp-card.villain').style.setProperty('--villain-color', v.color);
+  document.querySelector('.hp-card.villain').style.setProperty('--villain-glow', v.glow);
+
+  // botão confirmar
+  const btnC = $('#btn-confirm');
+  btnC.disabled = true;
+  btnC.onclick = onConfirm;
+
+  loadQuestion();
+  go('battle');
+}
+
+function updateHPUI(){
+  const hPct = Math.max(0,(state.heroHP/state.heroMax)*100);
+  const vPct = Math.max(0,(state.villainHP/state.villainMax)*100);
+  $('#hero-fill').style.width = hPct+'%';
+  $('#villain-fill').style.width = vPct+'%';
+  $('#hero-hp-val').textContent = `${state.heroHP}/${state.heroMax} HP`;
+  $('#villain-hp-val').textContent = `${state.villainHP}/${state.villainMax} HP`;
+  $('#score-label').textContent = `ACERTOS ${state.score}/${state.total}`;
+  $('#turn-label').textContent = `TURNO ${state.qIndex+1}`;
+}
+
+function loadQuestion(){
+  const v = state.villain;
+  if(state.qIndex >= v.questions.length){
+    return endBattle(state.villainHP <= 0);
+  }
+  if(state.villainHP <= 0) return endBattle(true);
+  if(state.heroHP <= 0) return endBattle(false);
+
+  const q = v.questions[state.qIndex];
+  $('#q-id').textContent = `PERGUNTA ${state.qIndex+1}/${v.questions.length}`;
+  $('#q-attack').textContent = `ATAQUE: ${state.hero.attackName}`;
+  $('#q-text').textContent = q.q;
+
+  const opts = $('#q-options');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.a.forEach((text, i)=>{
+    const opt = document.createElement('button');
+    opt.className='opt';
+    opt.dataset.index = i;
+    opt.innerHTML = `<b>${letters[i]})</b><span>${text}</span>`;
+    opt.addEventListener('click', ()=>{
+      if(state.locked) return;
+      state.selected = i;
+      $$('#q-options .opt').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      $('#btn-confirm').disabled = false;
+    });
+    opts.appendChild(opt);
+  });
+
+  state.selected = null;
+  state.locked = false;
+  $('#btn-confirm').disabled = true;
+}
+
+function onConfirm(){
+  if(state.selected === null || state.locked) return;
+  state.locked = true;
+  const v = state.villain;
+  const q = v.questions[state.qIndex];
+  const optsEls = $$('#q-options .opt');
+  const correctIdx = q.correct;
+
+  if(state.selected === correctIdx){
+    optsEls[state.selected].classList.add('correct');
+    state.score++;
+    state.combo++;
+    const dmg = 2 + Math.floor(state.combo/2); // pequeno bônus por combo
+    heroAttack(dmg);
+    // bônus Lélia: cura a cada 2 acertos seguidos
+    if(state.hero.id==='lelia' && state.combo > 0 && state.combo % 2 === 0 && state.heroHP < state.heroMax){
+      state.heroHP = Math.min(state.heroMax, state.heroHP+1);
+    }
+  } else {
+    optsEls[state.selected].classList.add('wrong');
+    optsEls[correctIdx].classList.add('correct');
+    state.combo = 0;
+    villainAttack(2);
+  }
+
+  setTimeout(()=>{
+    state.qIndex++;
+    if(state.heroHP <= 0) return endBattle(false);
+    if(state.villainHP <= 0) return endBattle(true);
+    loadQuestion();
+  }, 1800);
+}
+
+function heroAttack(dmg){
+  const proj = $('#projectile');
+  proj.classList.remove('fire');
+  void proj.offsetWidth;
+  proj.classList.add('fire');
+
+  setTimeout(()=>{
+    state.villainHP = Math.max(0, state.villainHP - dmg);
+    const villainEl = $('#villain-sprite');
+    villainEl.classList.add('shake');
+    villainEl.classList.add('flash-red');
+    spawnDmg(`-${dmg}`,'hit-villain', 'villain');
+    updateHPUI();
+    setTimeout(()=>{ villainEl.classList.remove('shake'); villainEl.classList.remove('flash-red'); }, 500);
+  }, 500);
+}
+
+function villainAttack(dmg){
+  const proj = $('#villain-counter');
+  proj.classList.remove('fire');
+  void proj.offsetWidth;
+  proj.classList.add('fire');
+
+  setTimeout(()=>{
+    state.heroHP = Math.max(0, state.heroHP - dmg);
+    const heroEl = $('#hero-sprite');
+    heroEl.classList.add('shake');
+    heroEl.classList.add('flash-red');
+    spawnDmg(`-${dmg}`,'hit-hero', 'hero');
+    updateHPUI();
+    setTimeout(()=>{ heroEl.classList.remove('shake'); heroEl.classList.remove('flash-red'); }, 500);
+  }, 500);
+}
+
+function spawnDmg(text, cls, where){
+  const arena = $('#arena');
+  const el = document.createElement('div');
+  el.className = `dmg-pop ${cls} fire`;
+  el.textContent = text;
+  if(where==='villain'){ el.style.right='14%'; el.style.top='30%'; }
+  else { el.style.left='14%'; el.style.top='30%'; }
+  arena.appendChild(el);
+  setTimeout(()=> el.remove(), 1000);
+}
+
+// ---------- FIM ----------
+function endBattle(won){
+  if (typeof saveScore !== "undefined") saveScore();
+
+  saveScore();
+
+  const v = state.villain;
+  $('#end-title').textContent = won ? 'VITÓRIA' : 'DERROTA';
+  $('#end-title').className = 'end-title ' + (won?'win':'lose');
+  $('#end-sub').innerHTML = won
+    ? `${v.name} foi <b style="color:var(--good)">CONTIDO</b>!<br>Protocolo executado com sucesso.`
+    : `${v.name} se espalhou pela ala...<br><b style="color:var(--danger)">Reforce a prevenção e tente novamente.</b>`;
+  $('#end-stats').innerHTML = `Acertos: <b>${state.score}/${state.total}</b> · HP restante: <b>${state.heroHP}/${state.heroMax}</b>`;
+  go('end');
+}
+</script>
+</body>
+</html>
