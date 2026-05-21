@@ -67,13 +67,11 @@
   /* ====== TELA MAPA ====== */
   .map-screen { padding: 0 !important; overflow: hidden; background: #0b1121; justify-content: flex-start; }
   .map-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 16px; background: var(--bg-mid); width: 100%;
+    display: flex; justify-content: flex-end; align-items: center;
+    padding: 15px 24px; background: var(--bg-mid); width: 100%;
     border-bottom: 2px solid var(--grid); z-index: 10; flex-shrink: 0;
   }
   .map-stat { font-family: 'Press Start 2P'; font-size: 14px; color: var(--warn); display: flex; align-items: center; gap: 8px; }
-  .map-back-btn { font-family: 'Press Start 2P'; font-size: 9px; padding: 8px 12px; background: transparent; border: 2px solid #1a2c4e; color: var(--muted); cursor: pointer; transition: all .2s; }
-  .map-back-btn:hover { border-color: var(--danger); color: var(--danger); }
   
   .map-scroll-area {
     width: 100%; flex: 1; overflow-y: auto; overflow-x: hidden;
@@ -536,7 +534,6 @@
   <!-- ====== TELA MAPA ====== -->
   <section class="screen map-screen" id="screen-map">
     <div class="map-header">
-      <button class="map-back-btn" onclick="go('title')">◂ INÍCIO</button>
       <div class="map-stat">⭐ <span id="map-score-display">0</span></div>
     </div>
     
@@ -545,6 +542,7 @@
     </div>
     
     <div class="map-navbar">
+      <button class="map-nav-item" onclick="go('title')" title="Início">🏠</button>
       <button class="map-nav-item active" onclick="go('map')">🗺️</button>
       <button class="map-nav-item" onclick="go('rank')">🏆</button>
     </div>
