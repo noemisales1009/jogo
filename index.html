@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>PROTOCOLO CCIH — Batalha contra os Vilões da Infecção</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&family=Orbitron:wght@700;900&family=Oxanium:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg-deep:#04060d;
@@ -18,9 +18,12 @@
     --good:#39ff8c;
     --text:#dff2ff;
     --muted:#7a90b5;
+    --font-title:'Bungee','Orbitron','Arial Black',sans-serif;
+    --font-ui:'Oxanium','Segoe UI',sans-serif;
+    --font-body:'Fredoka','Segoe UI',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;width:100%;overflow:hidden;background:var(--bg-deep);font-family:'VT323',monospace;color:var(--text);}
+  html,body{height:100%;width:100%;overflow:hidden;background:var(--bg-deep);font-family:var(--font-body);font-weight:500;color:var(--text);letter-spacing:0;}
   @supports (height: 100dvh){html,body{height:100dvh}}
 
   /* ====== FUNDO GLOBAL: grade cyber + scanlines ====== */
@@ -46,9 +49,9 @@
   @keyframes slideIn{from{opacity:0;transform:translateY(15px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 
   /* ====== TIPOGRAFIA ====== */
-  .pixel{font-family:'Press Start 2P',monospace;letter-spacing:1px}
-  .display{font-family:'Orbitron',sans-serif;letter-spacing:3px;font-weight:900}
-  .read{font-family:'VT323',monospace;font-size:22px;line-height:1.2}
+  .pixel{font-family:var(--font-ui);font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+  .display{font-family:var(--font-title);letter-spacing:.03em;font-weight:400}
+  .read{font-family:var(--font-body);font-size:19px;line-height:1.4}
 
   
   /* ====== TELAS DE AUTH E RANKING ====== */
@@ -367,6 +370,77 @@
   .topbar{position:fixed;top:10px;left:10px;font-family:'Press Start 2P';font-size:7px;color:var(--hero-cyan);opacity:.6;letter-spacing:2px;z-index:100;pointer-events:none}
   .topbar-right{position:fixed;top:10px;right:10px;font-family:'Press Start 2P';font-size:7px;color:var(--muted);opacity:.6;letter-spacing:2px;z-index:100;pointer-events:none}
 
+  /* ====== REFINO DE FONTE ====== */
+  .game-title,
+  .end-title,
+  .vp-villain-name{
+    font-family:var(--font-title) !important;
+    font-weight:400;
+    letter-spacing:0;
+  }
+  .title-tag,
+  .game-subtitle,
+  .start-btn,
+  .auth-input,
+  .btn-rank,
+  .rank-table .rank-pos,
+  .map-stat,
+  .map-section-header h3,
+  .select-header,
+  .card-name,
+  .card-meta,
+  .hp-label,
+  .score-pill,
+  .arena::after,
+  .floor-tags,
+  .dmg-pop,
+  .q-header,
+  .opt b,
+  .q-popup-title,
+  .qbtn,
+  .end-sub,
+  .vp-tag-text,
+  .vp-section-title,
+  .vp-item-name,
+  .vp-loc,
+  .topbar,
+  .topbar-right{
+    font-family:var(--font-ui) !important;
+    font-weight:800;
+    letter-spacing:.04em;
+  }
+  .rank-table,
+  .auth-toggle,
+  .map-section-header p,
+  .select-sub,
+  .card-tag,
+  .q-text,
+  .opt,
+  .q-popup-text,
+  .end-stats,
+  .vp-sci-text,
+  .vp-profile-text,
+  .vp-item-desc,
+  .vp-tip-text,
+  .title-desc{
+    font-family:var(--font-body) !important;
+    font-weight:500;
+    letter-spacing:0;
+  }
+  .q-text,
+  .q-popup-text,
+  .vp-profile-text,
+  .vp-tip-text{
+    line-height:1.42;
+  }
+  .q-text{font-size:20px}
+  .opt{font-size:17px;line-height:1.35}
+  .card-name,
+  .select-header,
+  .q-popup-title{
+    text-transform:uppercase;
+  }
+
   /* RESPONSIVIDADE */
   @media (max-width: 1024px) {
     .sprite{width:120px;height:120px}
@@ -398,7 +472,7 @@
     .qbtn{font-size: 8px; padding: 10px 6px}
     .end-title{font-size: 32px}
     .title-tag{font-size: 8px; margin-bottom: 12px}
-    .game-title{font-size: clamp(24px, 10vw, 36px); line-height: 1.1; letter-spacing: -1px;}
+    .game-title{font-size: clamp(24px, 10vw, 36px); line-height: 1.1; letter-spacing: 0;}
     .game-subtitle{font-size: 10px; line-height:1.6; margin-top: 16px; padding:0 10px}
     .start-btn{font-size: 11px; padding: 12px 20px; margin-top:20px}
     .topbar {font-size: 5px; letter-spacing: 1px}
