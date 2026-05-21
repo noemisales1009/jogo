@@ -158,7 +158,7 @@
   .card{position:relative;padding:18px;border:2px solid var(--card-color,#1a2c4e);background:linear-gradient(180deg, rgba(10,18,36,.9), rgba(4,8,16,.95));cursor:pointer;transition:all .2s ease;overflow:hidden}
   .card::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px, transparent 1px 3px);pointer-events:none}
   .card:hover{transform:translateY(-4px);box-shadow:0 0 0 1px var(--card-color),0 8px 30px var(--card-glow,rgba(0,240,255,.3))}
-  .card-sprite{width:100%;height:140px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+  .card-sprite{width:100%;height:180px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:10px}
   .card-sprite svg{width:120px;height:120px;filter:drop-shadow(0 0 12px var(--card-glow,rgba(0,240,255,.4)))}
   .card-name{font-family:'Press Start 2P';font-size:13px;color:var(--card-color,var(--text));text-align:center;margin-bottom:6px;text-shadow:0 0 8px var(--card-glow,rgba(0,240,255,.4))}
   .card-tag{font-family:'VT323';font-size:18px;color:var(--muted);text-align:center;line-height:1.1}
@@ -192,21 +192,21 @@
     linear-gradient(180deg,#060c1c,#03070f);
     overflow:hidden;min-height:220px}
   .arena::before{content:"";position:absolute;inset:0;background-image:
-    linear-gradient(rgba(0,240,255,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,240,255,.06) 1px, transparent 1px);
+    linear-gradient(var(--arena-grid, rgba(0,240,255,.06)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--arena-grid, rgba(0,240,255,.06)) 1px, transparent 1px);
     background-size:32px 32px;
     mask-image:linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
     -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
   }
-  .arena::after{content:"ALA NEP — SETOR CCIH";position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  .arena::after{content:attr(data-env,"ALA NEP — SETOR CCIH");position:absolute;top:10px;left:50%;transform:translateX(-50%);
     font-family:'Press Start 2P';font-size:8px;color:var(--hero-cyan);opacity:.7;letter-spacing:2px;white-space:nowrap}
 
   .floor-tags{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-around;font-family:'Press Start 2P';font-size:7px;color:var(--muted);opacity:.5;flex-wrap:wrap;gap:4px;padding:0 4px}
 
-  .hero-zone, .villain-zone{position:absolute;bottom:30px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .hero-zone, .villain-zone{position:absolute;top:50%;bottom:auto;display:flex;flex-direction:column;align-items:center;gap:4px}
   .hero-zone{left:8%;animation:bob 2.2s ease-in-out infinite}
   .villain-zone{right:6%;animation:bob 2.6s ease-in-out infinite reverse}
-  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes bob{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 6px))}}
 
   .sprite{position:relative;width:140px;height:140px}
   .sprite svg{width:100%;height:100%;display:block}
@@ -289,6 +289,29 @@
   .opt.correct b{color:var(--good)}
   .opt.wrong b{color:var(--danger)}
 
+  /* ====== POPUP DE RESULTADO ====== */
+  .q-popup{
+    position:absolute;inset:0;z-index:50;
+    display:none;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.75);backdrop-filter:blur(4px);
+  }
+  .q-popup.show{display:flex}
+  .q-popup-inner{
+    width:88%;max-width:420px;padding:28px 24px;text-align:center;
+    border:2px solid currentColor;
+    background:linear-gradient(180deg,rgba(4,8,20,.98),rgba(2,4,14,1));
+    animation:popIn .35s cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes popIn{
+    from{opacity:0;transform:scale(.8) translateY(20px)}
+    to{opacity:1;transform:scale(1) translateY(0)}
+  }
+  .q-popup.correct{color:var(--good)}
+  .q-popup.wrong{color:var(--danger)}
+  .q-popup-icon{font-size:52px;line-height:1;margin-bottom:8px}
+  .q-popup-title{font-family:'Press Start 2P';font-size:15px;margin-bottom:16px;text-shadow:0 0 14px currentColor}
+  .q-popup-text{font-family:'VT323';font-size:22px;line-height:1.35;color:var(--text)}
+
   .q-actions{display:flex;gap:8px;justify-content:flex-end}
   .qbtn{font-family:'Press Start 2P';font-size:10px;padding:9px 16px;background:rgba(4,12,24,.85);color:var(--hero-cyan);border:2px solid var(--hero-cyan);cursor:pointer;letter-spacing:1px;transition:all .15s ease;flex:1 1 auto;text-align:center}
   .qbtn:hover:not(:disabled){background:rgba(0,40,60,.5);box-shadow:0 0 14px rgba(0,240,255,.4)}
@@ -304,6 +327,39 @@
   .end-sub{font-family:'Press Start 2P';font-size:11px;color:var(--text);opacity:.85;margin-bottom:24px;line-height:1.6}
   .end-stats{font-family:'VT323';font-size:22px;color:var(--muted);margin-bottom:30px}
   .end-stats b{color:var(--hero-cyan)}
+
+  /* ====== PERFIL DO VILÃO ====== */
+  .vp-overlay{
+    position:absolute;inset:0;z-index:40;
+    display:none;flex-direction:column;
+    background:rgba(2,4,14,0.97);overflow-y:auto;
+    animation:slideIn .3s cubic-bezier(.16,1,.3,1);
+  }
+  .vp-overlay.show{display:flex}
+  .vp-inner{max-width:640px;width:100%;margin:0 auto;padding:16px 16px 20px;flex:1}
+  .vp-hero-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid var(--vp-color,#ff2d6f)}
+  .vp-sprite-wrap{width:90px;height:90px;flex-shrink:0;border-radius:50%;overflow:hidden;border:3px solid var(--vp-color,#ff2d6f);box-shadow:0 0 18px var(--vp-glow,rgba(255,45,111,.5))}
+  .vp-sprite-wrap img{width:100%;height:100%;object-fit:cover}
+  .vp-villain-name{font-family:'Orbitron',sans-serif;font-weight:900;font-size:20px;color:var(--vp-color,#ff2d6f);text-shadow:0 0 14px var(--vp-color,#ff2d6f);line-height:1.1}
+  .vp-sci-text{font-family:'VT323';font-size:19px;color:var(--muted);margin-top:2px}
+  .vp-tag-text{font-family:'Press Start 2P';font-size:7px;color:var(--muted);margin-top:4px;line-height:1.4}
+  .vp-section{margin-bottom:12px;border:1px solid rgba(255,255,255,0.07);padding:12px}
+  .vp-section-title{font-family:'Press Start 2P';font-size:8px;color:var(--vp-color,#ff2d6f);margin-bottom:8px;opacity:.9}
+  .vp-profile-text{font-family:'VT323';font-size:20px;color:var(--text);line-height:1.3}
+  .vp-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .vp-item{padding:8px;border:1px solid rgba(255,255,255,0.05);margin-bottom:6px}
+  .vp-item:last-child{margin-bottom:0}
+  .vp-item-name{font-family:'Press Start 2P';font-size:7px;color:var(--vp-color,#ff2d6f);line-height:1.4;margin-bottom:2px}
+  .vp-item-desc{font-family:'VT323';font-size:17px;color:var(--muted);line-height:1.2}
+  .vp-locs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .vp-loc{font-family:'Press Start 2P';font-size:7px;padding:5px 8px;border:1px solid rgba(255,255,255,0.12);color:var(--muted)}
+  .vp-tip-text{font-family:'VT323';font-size:21px;color:var(--warn);line-height:1.3}
+  .vp-footer{padding:12px 16px;border-top:2px solid rgba(255,255,255,0.07);display:flex;gap:10px;max-width:640px;width:100%;margin:0 auto;flex-shrink:0}
+
+  @media(max-width:480px){
+    .vp-two-col{grid-template-columns:1fr}
+    .vp-villain-name{font-size:16px}
+  }
 
   /* topbar pequena */
   .topbar{position:fixed;top:10px;left:10px;font-family:'Press Start 2P';font-size:7px;color:var(--hero-cyan);opacity:.6;letter-spacing:2px;z-index:100;pointer-events:none}
@@ -382,7 +438,46 @@
 
 <div id="app">
 
-  
+  <!-- ====== PERFIL DO VILÃO ====== -->
+  <div class="vp-overlay" id="vp-overlay">
+    <div class="vp-inner">
+      <div class="vp-hero-row" id="vp-hero-row">
+        <div class="vp-sprite-wrap" id="vp-sprite-wrap"></div>
+        <div>
+          <div class="vp-villain-name" id="vp-villain-name"></div>
+          <div class="vp-sci-text" id="vp-sci-text"></div>
+          <div class="vp-tag-text" id="vp-tag-text"></div>
+        </div>
+      </div>
+      <div class="vp-section">
+        <div class="vp-section-title">☣ PERFIL DO VILÃO</div>
+        <p class="vp-profile-text" id="vp-profile-text"></p>
+      </div>
+      <div class="vp-two-col">
+        <div class="vp-section">
+          <div class="vp-section-title">⚡ ATAQUES ESPECIAIS</div>
+          <div id="vp-attacks"></div>
+        </div>
+        <div class="vp-section">
+          <div class="vp-section-title">🛡 FRAQUEZAS</div>
+          <div id="vp-weaknesses"></div>
+        </div>
+      </div>
+      <div class="vp-section">
+        <div class="vp-section-title">📍 ONDE APARECE?</div>
+        <div class="vp-locs" id="vp-locations"></div>
+      </div>
+      <div class="vp-section">
+        <div class="vp-section-title">⭐ DICA DO HERÓI</div>
+        <p class="vp-tip-text" id="vp-tip-text"></p>
+      </div>
+    </div>
+    <div class="vp-footer">
+      <button class="qbtn secondary" id="vp-close">◂ VOLTAR</button>
+      <button class="qbtn" id="vp-fight" style="flex:2">⚔ ENFRENTAR!</button>
+    </div>
+  </div>
+
   <!-- ====== AUTH SCREEN ====== -->
   <section class="screen" id="screen-auth">
     <div class="title-stack">
@@ -469,6 +564,16 @@
 
   <!-- ====== TELA DE BATALHA ====== -->
   <section class="screen" id="screen-battle">
+
+    <!-- Popup de resultado -->
+    <div class="q-popup" id="q-popup">
+      <div class="q-popup-inner">
+        <div class="q-popup-icon" id="q-popup-icon"></div>
+        <div class="q-popup-title" id="q-popup-title"></div>
+        <p class="q-popup-text" id="q-popup-text"></p>
+      </div>
+    </div>
+
     <div class="battle-wrap">
       <!-- HUD -->
       <div class="hud-top">
@@ -518,7 +623,7 @@
         <p class="q-text" id="q-text">Carregando...</p>
         <div class="q-options" id="q-options"></div>
         <div class="q-actions">
-          <button class="qbtn secondary" data-back="villain">◂ VOLTAR</button>
+          <button class="qbtn secondary" data-back="map">◂ VOLTAR</button>
           <button class="qbtn" id="btn-confirm" disabled>CONFIRMAR ▶</button>
         </div>
       </div>
@@ -543,6 +648,8 @@
 <!-- ====== SPRITES SVG (definidos em JS) ====== -->
 
 <script type="module">
+import { createClient } from '@supabase/supabase-js';
+
 // =====================================================
 //   PROTOCOLO CCIH — JOGO DE BATALHA EDUCACIONAL
 // =====================================================
@@ -553,8 +660,8 @@
 
 const SPRITES = {
   // ===== HERÓIS =====
-  lelia: '<img src="/src/assets/images/illu_lelia_1779370210246.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
-  juju: '<img src="/src/assets/images/illu_juju_1779370224795.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  lelia: '<img src="/src/assets/images/hero_lelia_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
+  juju: '<img src="/src/assets/images/hero_juju_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
 
   // ===== VILÕES =====
   sepzilla: '<img src="/src/assets/images/illu_sepzilla_1779370156046.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
@@ -603,6 +710,24 @@ const VILLAINS = {
     hp:10,
     color:'#52b8e8',
     glow:'rgba(82,184,232,0.55)',
+    arenaBg:`linear-gradient(rgba(8,35,90,0.55) 0%,rgba(4,12,24,0.78) 100%),url('/src/assets/backgrounds/bg_sepzilla.png') center/cover no-repeat`,
+    arenaLabel:'UTI RESPIRATÓRIA — PAV',
+    arenaTags:['◆ VENTILAÇÃO MECÂNICA','◆ CIRCUITOS','◆ BIOFILME','◆ TUBO OROTRAQUEAL'],
+    info:{
+      profile:'TuboTox causa pneumonia em pacientes sob ventilação mecânica. Forma biofilme nos circuitos do respirador, libera toxinas que lesionam os pulmões e dificulta a troca gasosa. É sorrateiro, persistente e difícil de eliminar.',
+      attacks:[
+        {name:'Biofilme Invasor',desc:'Cria camadas protetoras resistentes a antibióticos e desinfetantes.'},
+        {name:'Toxina Pulmonar',desc:'Danifica os alvéolos, causando inflamação e queda da oxigenação.'},
+        {name:'Secreção Pegajosa',desc:'Aumenta secreções e obstrui os tubos do respirador.'},
+      ],
+      weaknesses:[
+        {name:'Higiene das Mãos',desc:'Remove o vilão antes que ele se espalhe.'},
+        {name:'Desinfecção dos Circuitos',desc:'Limpeza correta elimina o biofilme.'},
+        {name:'Filtros e Aspiração',desc:'Reduzem secreções e diminuem o risco de PAV.'},
+      ],
+      locations:['Ventiladores Mecânicos','Circuitos Respiratórios','Umidificadores','Conexões e Válvulas','Sistemas de Aspiração'],
+      tip:'Higienize as mãos, mantenha os circuitos limpos e observe sinais de infecção. Um cuidado constante mantém os pulmões seguros!',
+    },
     questions: [
       {q:'Qual a inclinação ideal da cabeceira para prevenir PAV?',
        a:['0 graus','15-20 graus','30-45 graus','90 graus'],
@@ -627,6 +752,25 @@ const VILLAINS = {
     hp:11,
     color:'#a855f7',
     glow:'rgba(168,85,247,0.55)',
+    arenaBg:`linear-gradient(rgba(45,8,100,0.55) 0%,rgba(7,2,14,0.78) 100%),url('/src/assets/backgrounds/bg_klebzor.png') center/cover no-repeat`,
+    arenaLabel:'ALA DE ISOLAMENTO — CONTATO',
+    arenaTags:['◆ ISOLAMENTO DE CONTATO','◆ RESISTÊNCIA MDR','◆ SUPERFÍCIES','◆ ANTIBIÓTICOS'],
+    info:{
+      profile:'Klebzor coloniza o intestino e o ambiente hospitalar, causando pneumonia, infecções urinárias e de corrente sanguínea. Destaca-se pela alta resistência a antibióticos — ela cria mecanismos que neutralizam múltiplos fármacos ao mesmo tempo.',
+      attacks:[
+        {name:'Mucus Protetor',desc:'Cria camada de biofilme que bloqueia a ação dos antibióticos.'},
+        {name:'Resistência Extrema',desc:'Possui mecanismos que neutralizam múltiplos antibióticos.'},
+        {name:'Infecção Silenciosa',desc:'Espalha-se rapidamente entre pacientes e superfícies.'},
+      ],
+      weaknesses:[
+        {name:'Higiene das Mãos',desc:'Impede transmissão cruzada entre pacientes.'},
+        {name:'Limpeza de Superfícies',desc:'Desinfecção correta elimina sua persistência ambiental.'},
+        {name:'Antibiótico por Cultura',desc:'Uso criterioso e guiado por antibiograma é essencial.'},
+        {name:'Isolamento de Contato',desc:'Monitoramento e isolamento reduzem disseminação.'},
+      ],
+      locations:['Ventiladores Mecânicos','Cateteres e Sondas','Superfícies do Quarto','Pias e Torneiras','Mãos e Contatos'],
+      tip:'Klebzor é astuta, mas a PREVENÇÃO é imbatível! Higienize as mãos, desinfete superfícies e respeite o isolamento de contato.',
+    },
     questions:[
       {q:'KPC (Klebsiella produtora de carbapenemase) requer qual precaução?',
         a:['Padrão somente','Contato + isolamento','Gotículas','Nenhuma'],
@@ -653,6 +797,25 @@ const VILLAINS = {
     hp:9,
     color:'#e83a5a',
     glow:'rgba(232,58,90,0.55)',
+    arenaBg:`linear-gradient(rgba(110,8,25,0.55) 0%,rgba(14,2,6,0.78) 100%),url('/src/assets/backgrounds/bg_cateterion.png') center/cover no-repeat`,
+    arenaLabel:'HEMODINÂMICA — CORRENTE SANGUÍNEA',
+    arenaTags:['◆ CATETER CENTRAL','◆ BUNDLE CVC','◆ SCRUB THE HUB','◆ IPCS'],
+    info:{
+      profile:'Cateterion instala-se em cateteres venosos e dispositivos invasivos. Forma biofilme nas superfícies internas, dispersando-se pela corrente sanguínea e causando infecções sistêmicas graves. É sorrateiro, adaptável e difícil de remover.',
+      attacks:[
+        {name:'Biofilme Protetor',desc:'Cria barreira que protege contra antibióticos e desinfetantes.'},
+        {name:'Disseminação Sanguínea',desc:'Libera bactérias que viajam pelo sangue e infectam órgãos distantes.'},
+        {name:'Toxinas Endotóxicas',desc:'Causam febre, calafrios, hipotensão e sepse.'},
+      ],
+      weaknesses:[
+        {name:'Higiene das Mãos',desc:'Técnica correta antes e após qualquer procedimento.'},
+        {name:'Antissépticos Potentes',desc:'Clorexidina alcoólica elimina o biofilme do cateter.'},
+        {name:'Bundle de Cateter',desc:'Medidas combinadas aplicadas 100% são sua maior fraqueza.'},
+        {name:'Remoção Precoce',desc:'Remova acessos desnecessários assim que possível.'},
+      ],
+      locations:['Cateteres Venosos','Cateteres Centrais (CVC)','Port-Cath e Implantes','Hemodiálise e Acessos','Infusões e Nutrição Parenteral'],
+      tip:'Use o bundle de cateter SEMPRE, higienize as mãos, desinfete conexões (Scrub the Hub) e troque o cateter quando necessário.',
+    },
     questions: [
       {q:'Qual a maneira correta de realizar o "Scrub the Hub" (fricção do canhão)?',
        a:['Aplicar álcool e secar em 1s','Friccionar com antisséptico (álcool 70% ou clorexidina) por 15s','Não manipular','Lavar com soro gelado'],
@@ -677,6 +840,24 @@ const VILLAINS = {
     hp:11,
     color:'#f0b800',
     glow:'rgba(240,184,0,0.55)',
+    arenaBg:`linear-gradient(rgba(90,65,0,0.5) 0%,rgba(14,10,1,0.78) 100%),url('/src/assets/backgrounds/bg_staphurion.png') center/cover no-repeat`,
+    arenaLabel:'CENTRO CIRÚRGICO — MRSA',
+    arenaTags:['◆ FERIDA OPERATÓRIA','◆ CLOREXIDINA','◆ PRECAUÇÃO DE CONTATO','◆ EPI'],
+    info:{
+      profile:'MRSA Prime coloniza a pele e mucosas. Quando encontra uma brecha invade feridas, cateteres e a corrente sanguínea, causando infecções graves e até sepse. Muitas cepas produzem toxinas e são resistentes a antibióticos comuns.',
+      attacks:[
+        {name:'Adesão Poderosa',desc:'Fixa-se em superfícies e dispositivos médicos com facilidade.'},
+        {name:'Toxinas Agressivas',desc:'Libera toxinas que destroem tecidos e ativam inflamação intensa.'},
+        {name:'Biofilme Dourado',desc:'Cria biofilmes resistentes que protegem contra antibióticos.'},
+      ],
+      weaknesses:[
+        {name:'Higiene das Mãos',desc:'Fricção correta remove e interrompe a transmissão.'},
+        {name:'Clorexidina Alcoólica',desc:'Antisséptico de eleição para preparo de pele.'},
+        {name:'Precauções de Contato',desc:'Luva e avental ao manipular paciente com MRSA.'},
+      ],
+      locations:['Cateteres e Acessos','Feridas Cirúrgicas','Lesões e Escoriações','Dispositivos Invasivos','Corrente Sanguínea'],
+      tip:'A arma mais poderosa é a PREVENÇÃO! Higienize as mãos, mantenha curativos limpos e use técnica asséptica sempre.',
+    },
     questions: [
       {q:'Qual é a medida base contra MRSA na manipulação do paciente (Precauções de Contato)?',
        a:['Higiene de mãos prévia + Luvas de procedimento e Avental','Máscara N95','Isolamento em pressão negativa','Tocar feridas com mãos nuas'],
@@ -703,6 +884,25 @@ const VILLAINS = {
     hp:9,
     color:'#70c040',
     glow:'rgba(112,192,64,0.55)',
+    arenaBg:`linear-gradient(rgba(15,75,5,0.52) 0%,rgba(5,14,2,0.78) 100%),url('/src/assets/backgrounds/bg_escherika.png') center/cover no-repeat`,
+    arenaLabel:'ALA UROLÓGICA — SONDA VESICAL',
+    arenaTags:['◆ SVD','◆ TÉCNICA ASSÉPTICA','◆ HIGIENE ÍNTIMA','◆ AVALIAÇÃO DIÁRIA'],
+    info:{
+      profile:'Escherika habita o intestino e busca qualquer oportunidade para invadir o trato urinário. Aproveita falhas na técnica asséptica e permanência prolongada da sonda vesical para causar infecções graves. Pode evoluir para Uro-Sepsis.',
+      attacks:[
+        {name:'Contaminação Fecal',desc:'Ascensão de bactérias da região perianal para a uretra.'},
+        {name:'Biofilme na Sonda',desc:'Forma biofilme no cateter dificultando a eliminação.'},
+        {name:'Uro-Sepsis',desc:'Pode causar sepse urinária e insuficiência orgânica.'},
+      ],
+      weaknesses:[
+        {name:'Técnica Asséptica',desc:'Sondagem estéril impede a entrada do patógeno.'},
+        {name:'Higiene Íntima',desc:'Limpeza correta diária com movimento sem retorno.'},
+        {name:'Remoção Precoce da Sonda',desc:'Menos tempo de sonda = risco muito menor.'},
+        {name:'Bolsa Abaixo da Bexiga',desc:'Impede refluxo e contamincação.'},
+      ],
+      locations:['Sonda Vesical de Demora','Higiene Íntima Inadequada','Contaminação Fecal','Técnica Séptica na Sondagem'],
+      tip:'Mantenha a técnica asséptica, higienize as mãos e avalie DIARIAMENTE a necessidade da sonda. Retire-a assim que possível!',
+    },
     questions:[
       {q:'Onde a bolsa coletora da Sonda Vesical de Demora (SVD) deve ficar posicionada?',
        a:['Assentada no chão','Sempre acima do nível da bexiga','Abaixo do nível da bexiga, sem tocar o chão','No nível do paciente'],
@@ -729,6 +929,24 @@ const VILLAINS = {
     hp:10,
     color:'#39ff8c',
     glow:'rgba(57,255,140,0.55)',
+    arenaBg:`linear-gradient(rgba(5,80,28,0.52) 0%,rgba(4,16,8,0.78) 100%),url('/src/assets/backgrounds/bg_pseudomor.png') center/cover no-repeat`,
+    arenaLabel:'EXPURGO — AMBIENTE ÚMIDO',
+    arenaTags:['◆ NEBULIZADOR','◆ PIAS E RALOS','◆ BIOFILME','◆ SECAGEM RIGOROSA'],
+    info:{
+      profile:'Pseudomor adora ambientes úmidos. Vive em respiradores, nebulizadores, pias, tubos e superfícies molhadas. É resistente, adaptável e difícil de eliminar — forma biofilme e sobrevive a muitos desinfetantes comuns.',
+      attacks:[
+        {name:'Névoa Tóxica',desc:'Contamina vias respiratórias via aerossóis e equipamentos.'},
+        {name:'Poça Contaminada',desc:'Cria reservatórios infecciosos em qualquer ambiente úmido.'},
+        {name:'Biofilme Protetor',desc:'Reduz drasticamente o efeito de antibióticos e desinfetantes.'},
+      ],
+      weaknesses:[
+        {name:'Secagem Adequada',desc:'Odeia ambientes secos — secagem rigorosa é essencial.'},
+        {name:'Desinfecção Correta',desc:'Hipoclorito, peróxido ou quaternário de amônio no POP.'},
+        {name:'Troca de Circuitos',desc:'Remove suas moradas favoritas quando contaminadas.'},
+      ],
+      locations:['Respiradores e Nebulizadores','Pias e Ralos','Umidificadores de O2','Tubos e Circuitos','Frascos Sugadores'],
+      tip:'Ambiente seco, equipamentos limpos e técnica correta são suas melhores armas! Troque circuitos conforme o POP e use sempre água estéril.',
+    },
     questions:[
       {q:'Para reduzir a colonização de Pseudomonas nos respiradores, a conduta correta é:',
        a:['Burlar a rotina e manter água parada','Desinfecção correta e secagem rigorosa de materiais e circuitos','Usar apenas água potável no ventilador','Fugir das inspeções'],
@@ -755,6 +973,25 @@ const VILLAINS = {
     hp:14,
     color:'#ff2d6f',
     glow:'rgba(255,45,111,0.7)',
+    arenaBg:`linear-gradient(rgba(140,5,25,0.58) 0%,rgba(14,2,4,0.78) 100%),url('/src/assets/backgrounds/bg_sepzilla.png') center/cover no-repeat`,
+    arenaLabel:'UTI CRÍTICA — CHOQUE SÉPTICO',
+    arenaTags:['◆ SEPSE','◆ FALÊNCIA MÚLTIPLA','◆ BUNDLE SEPSE','◆ ANTIBIÓTICO 1H'],
+    info:{
+      profile:'Sepzilla representa o Choque Séptico — a consequência mais devastadora das infecções hospitalares. Quando as defesas falham e o patógeno invade a corrente sanguínea, Sepzilla é invocado. É a manifestação da falência múltipla de órgãos.',
+      attacks:[
+        {name:'Cascata Séptica',desc:'Ativa resposta inflamatória devastadora em todo o organismo.'},
+        {name:'Hipotensão Severa',desc:'Queda da pressão arterial compromete a perfusão dos órgãos vitais.'},
+        {name:'Falência Múltipla',desc:'Ataca rins, pulmões, fígado e coração simultaneamente.'},
+      ],
+      weaknesses:[
+        {name:'Higienização das Mãos',desc:'Remove o patógeno antes que ganhe força letal.'},
+        {name:'Bundles de Prevenção',desc:'Executar TODOS os passos — 100% ou é considerado falha.'},
+        {name:'Antibiótico Precoce',desc:'Início imediato após coleta de culturas salva vidas.'},
+        {name:'Remoção do Foco',desc:'Retirar cateter, sonda ou dreno que originou a sepse.'},
+      ],
+      locations:['Consequência de IPCS','Consequência de PAV','Consequência de ITU','Qualquer IRAS não controlada'],
+      tip:'A higienização das mãos e obediência FIEL a todos os protocolos da CCIH previnem a invocação de Sepzilla. Prevenir é o único tratamento 100% eficaz!',
+    },
     questions:[
       {q:'Sepzilla foi despertado! Qual é a medida principal do Pacote de Sepse (1 Hora)?',
        a:['Aguardar exames por 12h','Iniciar antimicrobiano empírico amplo espectro após coletar culturas, além do suporte hemodinâmico','Pedir parecer para infecto apenas','Realizar sondagem de rotina'],
@@ -776,11 +1013,8 @@ const VILLAINS = {
 };
 
 
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+// Supabase desconectado temporariamente
+const supabase = null;
 
 // ---------- ESTADO ----------
 const state = {
@@ -803,16 +1037,60 @@ function go(screenId){
   target.classList.add('active');
   target.scrollTop = 0;
 }
+window.go = go;
 function setVar(el, name, value){ el.style.setProperty(name, value); }
+
+function showVillainProfile(v){
+  state.villain = v;
+  const overlay = $('#vp-overlay');
+  overlay.style.setProperty('--vp-color', v.color);
+  overlay.style.setProperty('--vp-glow', v.glow);
+  $('#vp-villain-name').textContent = v.name;
+  $('#vp-sci-text').textContent = v.sci;
+  $('#vp-tag-text').textContent = v.tag;
+
+  const match = SPRITES[v.id].match(/src="(.*?)"/);
+  $('#vp-sprite-wrap').innerHTML = match ? `<img src="${match[1]}" />` : '';
+
+  const info = v.info || {};
+  $('#vp-profile-text').textContent = info.profile || '';
+
+  $('#vp-attacks').innerHTML = (info.attacks || []).map(a =>
+    `<div class="vp-item"><div class="vp-item-name">${a.name}</div><div class="vp-item-desc">${a.desc}</div></div>`
+  ).join('');
+
+  $('#vp-weaknesses').innerHTML = (info.weaknesses || []).map(w =>
+    `<div class="vp-item"><div class="vp-item-name">${w.name}</div><div class="vp-item-desc">${w.desc}</div></div>`
+  ).join('');
+
+  $('#vp-locations').innerHTML = (info.locations || []).map(l =>
+    `<span class="vp-loc">${l}</span>`
+  ).join('');
+
+  $('#vp-tip-text').textContent = info.tip || '';
+
+  overlay.classList.add('show');
+  overlay.scrollTop = 0;
+}
 
 
 
 // ====== ESTADO DO PROGRESSO ======
 const userProgress = {
-  unlockedNodes: ['sepzilla'],
   completedNodes: [],
   score: 0
 };
+
+function shuffle(arr) {
+  for(let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+const sec1Villains = shuffle(['sepzilla','pseudomor','escherika','tubotox','klebzor','cateterion','staphurion'])
+  .map(id => ({ id, type: 'villain' }));
 
 const MAP_DATA = [
   {
@@ -821,15 +1099,7 @@ const MAP_DATA = [
     subtitle: 'Navegue pelas IRAS',
     color: '#00f0ff',
     bg: '#0a8aa6',
-    nodes: [
-      { id: 'sepzilla', type: 'villain' },
-      { id: 'pseudomor', type: 'villain' },
-      { id: 'escherika', type: 'villain' },
-      { id: 'tubotox', type: 'villain' },
-      { id: 'klebzor', type: 'villain' },
-      { id: 'cateterion', type: 'villain' },
-      { id: 'staphurion', type: 'villain' }
-    ]
+    nodes: sec1Villains
   },
   {
     id: 'sec2',
@@ -955,28 +1225,26 @@ function buildMap() {
       
       if (node.type === 'villain') {
         const v = VILLAINS[node.id];
-        let imgHtml = '';
+        const match = SPRITES[node.id].match(/src="(.*?)"/);
+        const src = match ? match[1] : '';
+        nodeEl.innerHTML = `<img src="${src}" />`;
         if (isLocked) {
-          imgHtml = `<span class="locked-icon">🔒</span>`;
-        } else {
-           const match = SPRITES[node.id].match(/src="(.*?)"/);
-           const src = match ? match[1] : '';
-           imgHtml = `<img src="${src}" />`;
+          nodeEl.style.filter = 'grayscale(1) brightness(0.4)';
         }
-        nodeEl.innerHTML = imgHtml;
         
         nodeEl.addEventListener('click', () => {
-          if (!isLocked) {
+          if (!isLocked && !nodeEl.dataset.clicking) {
+             nodeEl.dataset.clicking = '1';
              nodeEl.style.transform = `scale(0.9)`;
              setTimeout(() => {
                 nodeEl.style.transform = `scale(1)`;
-                state.villain = v;
-                go('hero');
+                delete nodeEl.dataset.clicking;
+                showVillainProfile(v);
              }, 150);
           }
         });
       } else {
-         nodeEl.innerHTML = `<span class="locked-icon">🔒</span>`;
+         nodeEl.innerHTML = `<span class="locked-icon">☣</span>`;
          nodeEl.addEventListener('click', () => {
            if (!nodeEl.classList.contains('locked')) return;
            nodeEl.style.transform = `scale(0.9)`;
@@ -1070,9 +1338,8 @@ if (btnViewRank) {
     go('rank');
     const tbody = document.querySelector('#rank-table tbody');
     tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Carregando dados encriptados...</td></tr>';
-    
+
     if(supabase) {
-      // Usa leaderboad
       const { data, error } = await supabase.from('leaderboard').select('*').order('max_score', { ascending: false }).limit(20);
       if(error){
         tbody.innerHTML = '<tr><td colspan="3" style="color:var(--danger)">Falha no link orbital. Verifique a Tabela.</td></tr>';
@@ -1094,10 +1361,10 @@ if (btnViewRank) {
        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Supabase não conectado.</td></tr>';
     }
   });
+}
 
-  if(btnRankBack) {
-    btnRankBack.addEventListener('click', () => { buildMap(); go('map'); });
-  }
+if(btnRankBack) {
+  btnRankBack.addEventListener('click', () => { go('map'); });
 }
 
 async function checkAuth() {
@@ -1133,11 +1400,12 @@ if(supabase) {
 }
 
 // ---------- INIT ----------
-document.addEventListener('DOMContentLoaded', ()=>{
-  $('#btn-start').addEventListener('click', ()=> { buildMap(); go('map'); });
-  $('#btn-replay').addEventListener('click', ()=> { buildMap(); go('map'); });
-  $('[data-back]').forEach(b => b.addEventListener('click', e => {
-  const target = e.target.dataset.back;
+$('#vp-close').addEventListener('click', () => { $('#vp-overlay').classList.remove('show'); });
+$('#vp-fight').addEventListener('click', () => { $('#vp-overlay').classList.remove('show'); go('hero'); });
+$('#btn-start').addEventListener('click', ()=> { buildMap(); go('map'); });
+$('#btn-replay').addEventListener('click', ()=> { buildMap(); go('map'); });
+$$('[data-back]').forEach(b => b.addEventListener('click', e => {
+  const target = e.currentTarget.dataset.back;
   if(target === 'title' || target === 'villain') {
     buildMap();
     go('map');
@@ -1145,9 +1413,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     go(target);
   }
 }));
-  buildHeroGrid();
-  buildVillainGrid();
-});
+buildHeroGrid();
 
 // ---------- GRIDS ----------
 function buildHeroGrid(){
@@ -1156,7 +1422,7 @@ function buildHeroGrid(){
     const card = document.createElement('div');
     card.className='card';
     card.style.setProperty('--card-color', h.color);
-    card.style.setProperty('--card-glow', h.color.replace(')',',0.45)').replace('rgb','rgba'));
+    card.style.setProperty('--card-glow', hexToRgba(h.color, 0.45));
     card.innerHTML = `
       <div class="card-sprite">${SPRITES[h.id]}</div>
       <div class="card-name">${h.name}</div>
@@ -1170,7 +1436,7 @@ function buildHeroGrid(){
       card.style.boxShadow = '0 0 40px var(--card-color)';
       setTimeout(() => {
         state.hero = h;
-        go('villain');
+        startBattle();
         card.style.transform = '';
         card.style.boxShadow = '';
       }, 150);
@@ -1257,8 +1523,8 @@ async function startBattle(){
         // Assume format: { question_text, options: string[], correct_index, explanation }
         v.questions = data.map(dbQ => ({
           q: dbQ.question_text,
-          a: Array.isArray(dbQ.options) ? dbQ.options : JSON.parse(dbQ.options || '[]'),
-          correct: parseInt(dbQ.correct_index, 10),
+          a: Array.isArray(dbQ.options) ? dbQ.options : (() => { try { return JSON.parse(dbQ.options || '[]'); } catch(e) { return []; } })(),
+          correct: parseInt(dbQ.correct_index, 10) || 0,
           expl: dbQ.explanation || ''
         }));
       } else if (error) {
@@ -1291,6 +1557,12 @@ async function startBattle(){
   const arena = $('#arena');
   arena.style.setProperty('--villain-color', v.color);
   arena.style.setProperty('--villain-glow', v.glow);
+  arena.style.setProperty('--arena-grid', hexToRgba(v.color, 0.07));
+  if (v.arenaBg) arena.style.background = v.arenaBg;
+  arena.setAttribute('data-env', v.arenaLabel || 'ALA NEP — SETOR CCIH');
+  if (v.arenaTags) {
+    $('.floor-tags').innerHTML = v.arenaTags.map(t => `<span>${t}</span>`).join('');
+  }
   $('#screen-battle').style.setProperty('--villain-color', v.color);
   $('#screen-battle').style.setProperty('--villain-glow', v.glow);
   document.querySelector('.hp-card.villain').style.setProperty('--villain-color', v.color);
@@ -1325,6 +1597,7 @@ function loadQuestion(){
   if(state.heroHP <= 0) return endBattle(false);
 
   const q = v.questions[state.qIndex];
+  $('#q-popup').className = 'q-popup';
   $('#q-id').textContent = `PERGUNTA ${state.qIndex+1}/${v.questions.length}`;
   $('#q-attack').textContent = `ATAQUE: ${state.hero.attackName}`;
   $('#q-text').textContent = q.q;
@@ -1352,6 +1625,14 @@ function loadQuestion(){
   $('#btn-confirm').disabled = true;
 }
 
+function showExpl(isCorrect, text){
+  const popup = $('#q-popup');
+  $('#q-popup-icon').textContent = isCorrect ? '✓' : '✗';
+  $('#q-popup-title').textContent = isCorrect ? 'CORRETO!' : 'ERRADO!';
+  $('#q-popup-text').textContent = text;
+  popup.className = 'q-popup show ' + (isCorrect ? 'correct' : 'wrong');
+}
+
 function onConfirm(){
   if(state.selected === null || state.locked) return;
   state.locked = true;
@@ -1364,17 +1645,18 @@ function onConfirm(){
     optsEls[state.selected].classList.add('correct');
     state.score++;
     state.combo++;
-    const dmg = 2 + Math.floor(state.combo/2); // pequeno bônus por combo
+    const dmg = 2 + Math.floor(state.combo/2);
     heroAttack(dmg);
-    // bônus Lélia: cura a cada 2 acertos seguidos
     if(state.hero.id==='lelia' && state.combo > 0 && state.combo % 2 === 0 && state.heroHP < state.heroMax){
       state.heroHP = Math.min(state.heroMax, state.heroHP+1);
     }
+    showExpl(true, q.expl);
   } else {
     optsEls[state.selected].classList.add('wrong');
     optsEls[correctIdx].classList.add('correct');
     state.combo = 0;
     villainAttack(2);
+    showExpl(false, q.expl);
   }
 
   setTimeout(()=>{
@@ -1382,7 +1664,7 @@ function onConfirm(){
     if(state.heroHP <= 0) return endBattle(false);
     if(state.villainHP <= 0) return endBattle(true);
     loadQuestion();
-  }, 1800);
+  }, 3000);
 }
 
 function heroAttack(dmg){
@@ -1432,9 +1714,15 @@ function spawnDmg(text, cls, where){
 
 // ---------- FIM ----------
 function endBattle(won){
-  if (typeof saveScore !== "undefined") saveScore();
-
   saveScore();
+
+  if(won) {
+    const vid = state.villain.id;
+    if(!userProgress.completedNodes.includes(vid)) {
+      userProgress.completedNodes.push(vid);
+    }
+    userProgress.score += state.score;
+  }
 
   const v = state.villain;
   $('#end-title').textContent = won ? 'VITÓRIA' : 'DERROTA';
