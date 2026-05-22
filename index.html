@@ -21,6 +21,7 @@
     --font-title:'Bungee','Orbitron','Arial Black',sans-serif;
     --font-ui:'Oxanium','Segoe UI',sans-serif;
     --font-body:'Fredoka','Segoe UI',sans-serif;
+    --font-readable:'Segoe UI','Arial',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;width:100%;overflow:hidden;background:var(--bg-deep);font-family:var(--font-body);font-weight:500;color:var(--text);letter-spacing:0;}
@@ -81,18 +82,18 @@
     padding-bottom: 90px;
     background-image: radial-gradient(ellipse at 50% 50%, rgba(0,240,255,0.03), transparent 60%);
   }
-  .map-section { width: 100%; max-width: 600px; margin: 0 auto 50px auto; }
+  .map-section { width: 100%; max-width: 600px; margin: 0 auto 24px auto; }
   .map-section-header {
-    color: #000; padding: 16px 20px; text-align: center;
-    border-radius: 12px; margin: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    color: #000; padding: 12px 18px; text-align: center;
+    border-radius: 12px; margin: 14px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
   }
-  .map-section-header h3 { font-family: 'Press Start 2P', monospace; font-size: 14px; margin-bottom: 8px; }
-  .map-section-header p { font-family: 'VT323', monospace; font-size: 22px; margin: 0; }
+  .map-section-header h3 { font-family: 'Press Start 2P', monospace; font-size: 12px; margin-bottom: 6px; }
+  .map-section-header p { font-family: 'VT323', monospace; font-size: 20px; margin: 0; }
   
-  .map-path { display: flex; flex-direction: column; align-items: center; gap: 40px; padding: 20px 0; position: relative; }
+  .map-path { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 8px 0; position: relative; }
   
   .map-node {
-    width: 80px; height: 80px; border-radius: 50%;
+    width: 72px; height: 72px; border-radius: 50%;
     background: #2a3441; border: 4px solid #1a2332;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; position: relative; z-index: 2;
@@ -101,9 +102,24 @@
   .map-node:active { transform: translateY(8px); box-shadow: 0 0 0 #0d131f; }
   .map-node.done { background: var(--hero-cyan); border-color: #fff; box-shadow: 0 8px 0 #008899; }
   .map-node.current { background: var(--warn); border-color: #fff; box-shadow: 0 8px 0 #cc9900; animation: pulseNode 1.5s infinite; }
-  .map-node.locked { opacity: 0.6; cursor: not-allowed; }
+  .map-node.locked { opacity: 1; cursor: not-allowed; filter: grayscale(.2); }
   .map-node:active.locked { transform: none; box-shadow: 0 8px 0 #0d131f; }
-  .map-node img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.5); }
+  .map-node img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.65); }
+  .map-node.locked::after {
+    content: "🔒";
+    position: absolute;
+    right: -5px;
+    bottom: -4px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(4,10,22,.9);
+    border: 2px solid #1a2332;
+    font-size: 12px;
+    filter: grayscale(0);
+  }
   .map-node .locked-icon { font-size: 30px; opacity: 0.5; }
   
   /* SVG path connection */
@@ -213,8 +229,21 @@
   .villain-zone{right:6%;animation:bob 2.6s ease-in-out infinite reverse}
   @keyframes bob{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 6px))}}
 
-  .sprite{position:relative;width:140px;height:140px}
+  .sprite{--sprite-size:140px;position:relative;width:var(--sprite-size);height:var(--sprite-size)}
   .sprite svg{width:100%;height:100%;display:block}
+  .sheet-sprite{
+    width:100%;
+    height:100%;
+    background-repeat:no-repeat;
+    background-position:0 0;
+    background-size:calc(var(--sprite-size) * 8) var(--sprite-size);
+    image-rendering:auto;
+    animation:sprite8 .9s steps(8) infinite;
+  }
+  .villain-zone .sprite{--sprite-size:190px}
+  .card-sprite .sheet-sprite{width:140px;height:140px}
+  .vp-sprite-wrap .sheet-sprite{width:100%;height:100%}
+  @keyframes sprite8{to{background-position:calc(var(--sprite-size) * -8) 0}}
   .hero-zone .sprite{filter:drop-shadow(0 0 14px rgba(0,240,255,.55))}
   .villain-zone .sprite{filter:drop-shadow(0 0 18px var(--villain-glow,rgba(255,45,111,.6)))}
 
@@ -349,16 +378,16 @@
   .vp-sci-text{font-family:'VT323';font-size:19px;color:var(--muted);margin-top:2px}
   .vp-tag-text{font-family:'Press Start 2P';font-size:7px;color:var(--muted);margin-top:4px;line-height:1.4}
   .vp-section{margin-bottom:12px;border:1px solid rgba(255,255,255,0.07);padding:12px}
-  .vp-section-title{font-family:'Press Start 2P';font-size:8px;color:var(--vp-color,#ff2d6f);margin-bottom:8px;opacity:.9}
-  .vp-profile-text{font-family:'VT323';font-size:20px;color:var(--text);line-height:1.3}
+  .vp-section-title{font-family:'Press Start 2P';font-size:10px;color:var(--vp-color,#ff2d6f);margin-bottom:10px;opacity:.95;line-height:1.4}
+  .vp-profile-text{font-family:var(--font-readable);font-size:19px;color:var(--text);line-height:1.5;font-weight:650}
   .vp-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
   .vp-item{padding:8px;border:1px solid rgba(255,255,255,0.05);margin-bottom:6px}
   .vp-item:last-child{margin-bottom:0}
-  .vp-item-name{font-family:'Press Start 2P';font-size:7px;color:var(--vp-color,#ff2d6f);line-height:1.4;margin-bottom:2px}
-  .vp-item-desc{font-family:'VT323';font-size:17px;color:var(--muted);line-height:1.2}
-  .vp-locs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-  .vp-loc{font-family:'Press Start 2P';font-size:7px;padding:5px 8px;border:1px solid rgba(255,255,255,0.12);color:var(--muted)}
-  .vp-tip-text{font-family:'VT323';font-size:21px;color:var(--warn);line-height:1.3}
+  .vp-item-name{font-family:'Press Start 2P';font-size:8.5px;color:var(--vp-color,#ff2d6f);line-height:1.45;margin-bottom:4px}
+  .vp-item-desc{font-family:var(--font-readable);font-size:16px;color:#aebfe0;line-height:1.42;font-weight:650}
+  .vp-locs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .vp-loc{font-family:var(--font-ui);font-size:11px;padding:7px 10px;border:1px solid rgba(255,255,255,0.16);color:#b8c8e8;font-weight:800;line-height:1.2}
+  .vp-tip-text{font-family:var(--font-readable);font-size:20px;color:var(--warn);line-height:1.45;font-weight:750}
   .vp-footer{position:sticky;bottom:0;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:2px solid rgba(255,255,255,0.07);display:flex;gap:10px;max-width:640px;width:100%;margin:0 auto;background:rgba(2,4,14,0.97);z-index:1}
 
   @media(max-width:480px){
@@ -419,9 +448,6 @@
   .q-popup-text,
   .end-stats,
   .vp-sci-text,
-  .vp-profile-text,
-  .vp-item-desc,
-  .vp-tip-text,
   .title-desc{
     font-family:var(--font-body) !important;
     font-weight:500;
@@ -443,7 +469,8 @@
 
   /* RESPONSIVIDADE */
   @media (max-width: 1024px) {
-    .sprite{width:120px;height:120px}
+    .sprite{--sprite-size:120px}
+    .villain-zone .sprite{--sprite-size:175px}
     .q-text{font-size:20px}
   }
 
@@ -451,7 +478,8 @@
     .game-title{font-size: clamp(32px, 7vw, 70px)}
     .card-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
     .q-options{grid-template-columns:1fr}
-    .sprite{width:100px;height:100px}
+    .sprite{--sprite-size:105px}
+    .villain-zone .sprite{--sprite-size:155px}
     .hud-top{gap:8px}
   }
 
@@ -462,7 +490,8 @@
     .score-pill{grid-column:1/-1; order:-1; font-size:9px; padding:6px 10px}
     .card-grid{grid-template-columns:1fr} 
     .arena{min-height: 160px}
-    .sprite{width:76px;height:76px}
+    .sprite{--sprite-size:82px}
+    .villain-zone .sprite{--sprite-size:112px}
     .hero-zone{left: 2%}
     .villain-zone{right: 2%}
     .q-text{font-size:16px; margin-bottom:8px; min-height: 20px}
@@ -488,8 +517,9 @@
   }
 
   @media (max-height: 700px){
-    .sprite{width:90px;height:90px}
-    .arena{min-height: 160px}
+    .sprite{--sprite-size:110px}
+    .villain-zone .sprite{--sprite-size:150px}
+    .arena{min-height: 220px}
     .q-text{margin-bottom:6px; font-size:18px}
     .q-options{gap:4px; margin-bottom:6px}
     .select-screen{justify-content: flex-start}
@@ -500,8 +530,9 @@
     .start-btn{margin-top: 24px}
   }
   @media (max-height: 500px){
-    .sprite{width:70px;height:70px}
-    .arena{min-height: 120px}
+    .sprite{--sprite-size:82px}
+    .villain-zone .sprite{--sprite-size:108px}
+    .arena{min-height: 150px}
     .score-pill{display:none} /* Esconde o turno em telas muito baixas p/ ganhar espaço */
     .hud-top{grid-template-columns:1fr 1fr} 
   }
@@ -734,19 +765,32 @@
 // Os sprites são pixel-art em SVG (shape-rendering: crispEdges)
 // Estilo simplificado mas reconhecível, com cores temáticas.
 
+const spriteSheet = (src, label) =>
+  `<div class="sheet-sprite" role="img" aria-label="${label}" style="background-image:url('${src}')"></div>`;
+
 const SPRITES = {
   // ===== HERÓIS =====
   lelia: '<img src="/src/assets/images/hero_lelia_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
   juju: '<img src="/src/assets/images/hero_juju_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
 
   // ===== VILÕES =====
-  sepzilla: '<img src="/src/assets/images/illu_sepzilla_1779370156046.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  sepzilla: spriteSheet('/src/assets/sprites/sepzilla/idle.png', 'Sepzilla'),
   pseudomor: '<img src="/src/assets/images/illu_pseudomor_1779370106612.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
   klebzor: '<img src="/src/assets/images/illu_klebzor_1779370139683.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
   tubotox: '<img src="/src/assets/images/illu_tubotox_1779370090969.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
   cateterion: '<img src="/src/assets/images/illu_cateterion_1779370172698.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
   staphurion: '<img src="/src/assets/images/illu_staphurion_1779370188355.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
   escherika: '<img src="/src/assets/images/illu_escherika_1779370122860.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+};
+
+const MAP_ICONS = {
+  sepzilla: '/src/assets/images/illu_sepzilla_1779370156046.png',
+  pseudomor: '/src/assets/images/illu_pseudomor_1779370106612.png',
+  klebzor: '/src/assets/images/illu_klebzor_1779370139683.png',
+  tubotox: '/src/assets/images/illu_tubotox_1779370090969.png',
+  cateterion: '/src/assets/images/illu_cateterion_1779370172698.png',
+  staphurion: '/src/assets/images/illu_staphurion_1779370188355.png',
+  escherika: '/src/assets/images/illu_escherika_1779370122860.png',
 };
 
 // ---------- DADOS DOS HERÓIS ----------
@@ -1125,8 +1169,11 @@ function showVillainProfile(v){
   $('#vp-sci-text').textContent = v.sci;
   $('#vp-tag-text').textContent = v.tag;
 
+  const profileIcon = MAP_ICONS[v.id];
   const match = SPRITES[v.id].match(/src="(.*?)"/);
-  $('#vp-sprite-wrap').innerHTML = match ? `<img src="${match[1]}" />` : '';
+  $('#vp-sprite-wrap').innerHTML = profileIcon
+    ? `<img src="${profileIcon}" />`
+    : (match ? `<img src="${match[1]}" />` : SPRITES[v.id]);
 
   const info = v.info || {};
   $('#vp-profile-text').textContent = info.profile || '';
@@ -1165,7 +1212,7 @@ function shuffle(arr) {
   return arr;
 }
 
-const sec1Villains = shuffle(['sepzilla','pseudomor','escherika','tubotox','klebzor','cateterion','staphurion'])
+const sec1Villains = ['tubotox','klebzor','cateterion','staphurion','escherika','pseudomor','sepzilla']
   .map(id => ({ id, type: 'villain' }));
 
 const MAP_DATA = [
@@ -1226,8 +1273,9 @@ function buildMap() {
     pathDiv.style.position = 'relative';
     pathDiv.style.width = '100%';
     
-    const offsets = [0, 60, 80, 60, 0, -60, -80, -60];
-    const nodeSpacing = 110; 
+    const offsets = [0, 56, 72, 56, 0, -56, -72, -56];
+    const nodeSize = 72;
+    const nodeSpacing = 76; 
     
     // We create a wrapper that centers everything.
     const wrapper = document.createElement('div');
@@ -1270,7 +1318,7 @@ function buildMap() {
     nodesContainer.style.zIndex = '2';
     
     section.nodes.forEach((node, idx) => {
-      const xOffset = offsets[idx % offsets.length] + 150 - 40; // center is 150, node is 80x80 (half is 40)
+      const xOffset = offsets[idx % offsets.length] + 150 - (nodeSize / 2);
       const yOffset = idx * nodeSpacing;
       
       const isDone = userProgress.completedNodes.includes(node.id);
@@ -1301,12 +1349,8 @@ function buildMap() {
       
       if (node.type === 'villain') {
         const v = VILLAINS[node.id];
-        const match = SPRITES[node.id].match(/src="(.*?)"/);
-        const src = match ? match[1] : '';
+        const src = MAP_ICONS[node.id] || '';
         nodeEl.innerHTML = `<img src="${src}" />`;
-        if (isLocked) {
-          nodeEl.style.filter = 'grayscale(1) brightness(0.4)';
-        }
         
         nodeEl.addEventListener('click', () => {
           if (!isLocked && !nodeEl.dataset.clicking) {
