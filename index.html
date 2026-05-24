@@ -159,6 +159,7 @@
   }
   .game-subtitle{font-family:'Press Start 2P';font-size:13px;color:var(--text);margin-top:18px;opacity:.85}
   .game-subtitle b{color:var(--danger)}
+  .title-desc{max-width:min(640px,92vw);margin-left:auto;margin-right:auto;text-align:center;line-height:1.35}
   .start-btn{margin-top:42px;font-family:'Press Start 2P';font-size:14px;padding:18px 38px;
     background:linear-gradient(180deg,#0e2a44,#061625);color:var(--hero-cyan);
     border:2px solid var(--hero-cyan);cursor:pointer;letter-spacing:2px;
@@ -228,6 +229,13 @@
   .hero-zone{left:8%;animation:bob 2.2s ease-in-out infinite}
   .villain-zone{right:6%;animation:bob 2.6s ease-in-out infinite reverse}
   @keyframes bob{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 6px))}}
+  .villain-zone.walk-attack{animation:villainAdvance 2.1s ease-in-out forwards}
+  @keyframes villainAdvance{
+    0%{transform:translateY(-50%) translateX(0)}
+    34%{transform:translateY(calc(-50% - 4px)) translateX(-20vw)}
+    72%{transform:translateY(calc(-50% - 4px)) translateX(-20vw)}
+    100%{transform:translateY(-50%) translateX(0)}
+  }
 
   .sprite{--sprite-size:140px;position:relative;width:var(--sprite-size);height:var(--sprite-size)}
   .sprite svg{width:100%;height:100%;display:block}
@@ -240,10 +248,16 @@
     image-rendering:auto;
     animation:sprite8 .9s steps(8) infinite;
   }
+  .sheet-sprite.attack-sprite{animation-duration:.72s}
+  .sheet-sprite.walk-sprite{animation-duration:.72s}
+  .sheet-sprite.victory-sprite{animation-duration:1s}
+  .sheet-sprite.death-sprite{animation:spriteDeath 1.15s steps(7) forwards}
+  .villain-zone .sheet-sprite.klebzor-sprite{transform:translateX(-18px) scale(1.14);transform-origin:center bottom}
   .villain-zone .sprite{--sprite-size:190px}
   .card-sprite .sheet-sprite{width:140px;height:140px}
   .vp-sprite-wrap .sheet-sprite{width:100%;height:100%}
   @keyframes sprite8{to{background-position:calc(var(--sprite-size) * -8) 0}}
+  @keyframes spriteDeath{to{background-position:calc(var(--sprite-size) * -7) 0}}
   .hero-zone .sprite{filter:drop-shadow(0 0 14px rgba(0,240,255,.55))}
   .villain-zone .sprite{filter:drop-shadow(0 0 18px var(--villain-glow,rgba(255,45,111,.6)))}
 
@@ -271,15 +285,44 @@
     15%{opacity:1;transform:translate(20px,-10px) scale(1)}
     100%{opacity:0;transform:translate(60vw,0) scale(1.6)}
   }
-  .villain-counter{position:absolute;width:30px;height:30px;border-radius:50%;
-    background:radial-gradient(circle, #fff 0%, var(--villain-color,#ff2d6f) 40%, transparent 75%);
-    box-shadow:0 0 24px var(--villain-color,#ff2d6f);
-    top:58%;right:14%;opacity:0}
-  .villain-counter.fire{animation:counterProj .7s ease-out forwards}
+  .villain-counter{position:absolute;width:74px;height:74px;
+    background:url('src/assets/sprites/tubotox/gosma-ataque1.png') 0 0/592px 74px no-repeat;
+    filter:drop-shadow(0 0 10px rgba(145,255,24,.65));
+    top:50%;right:18%;opacity:0}
+  .villain-counter.fire{animation:gooSprite .72s steps(8) forwards, counterProj .72s ease-out forwards}
+  .villain-counter.klebzor-fire{
+    width:96px;height:96px;
+    background:url('src/assets/sprites/klebzor/mucus-protetor-fx.png?v=1') 0 0/768px 96px no-repeat;
+    filter:drop-shadow(0 0 14px rgba(190,70,255,.78)) drop-shadow(0 0 28px rgba(120,35,210,.45));
+    animation:klebzorMucusSprite .82s steps(8) forwards, counterProj .82s ease-out forwards;
+  }
+  .villain-counter.klebzor-special-fire{
+    width:128px;height:128px;
+    background:url('src/assets/sprites/klebzor/skill-especial-fx.png?v=1') 0 0/1024px 128px no-repeat;
+    filter:drop-shadow(0 0 18px rgba(210,70,255,.9)) drop-shadow(0 0 38px rgba(145,35,230,.55));
+    animation:klebzorSpecialSprite 1.08s steps(8) forwards, specialProj 1.08s ease-out forwards;
+  }
+  .villain-counter.special-fire{
+    width:112px;height:112px;
+    background:url('src/assets/sprites/tubotox/skill-especial-fx.png') 0 0/896px 112px no-repeat;
+    filter:drop-shadow(0 0 18px rgba(170,255,24,.8)) drop-shadow(0 0 34px rgba(90,255,40,.45));
+    animation:specialSprite 1.08s steps(8) forwards, specialProj 1.08s ease-out forwards;
+  }
+  @keyframes gooSprite{to{background-position:-592px 0}}
+  @keyframes klebzorMucusSprite{to{background-position:-768px 0}}
+  @keyframes klebzorSpecialSprite{to{background-position:-1024px 0}}
+  @keyframes specialSprite{to{background-position:-896px 0}}
   @keyframes counterProj{
-    0%{opacity:0;transform:translate(0,0) scale(.4)}
-    15%{opacity:1;transform:translate(-20px,-6px) scale(1)}
-    100%{opacity:0;transform:translate(-60vw,0) scale(1.6)}
+    0%{opacity:.25;transform:translate(0,0) scale(.45)}
+    14%{opacity:1;transform:translate(-14px,-6px) scale(.9)}
+    72%{opacity:1;transform:translate(-46vw,4px) scale(1.15)}
+    100%{opacity:0;transform:translate(-55vw,8px) scale(1.05)}
+  }
+  @keyframes specialProj{
+    0%{opacity:.35;transform:translate(0,0) scale(.45) rotate(0deg)}
+    18%{opacity:1;transform:translate(-24px,-10px) scale(1) rotate(-8deg)}
+    70%{opacity:1;transform:translate(-42vw,2px) scale(1.35) rotate(8deg)}
+    100%{opacity:0;transform:translate(-54vw,8px) scale(1.15) rotate(0deg)}
   }
 
   .dmg-pop{position:absolute;font-family:'Press Start 2P';font-size:22px;color:#fff;text-shadow:0 0 12px currentColor;pointer-events:none;opacity:0}
@@ -305,6 +348,20 @@
   @keyframes flashRed{0%{filter:brightness(1)}50%{filter:brightness(2) hue-rotate(-20deg)}100%{filter:brightness(1)}}
   .flash-cyan{animation:flashCyan .4s}
   @keyframes flashCyan{0%{filter:brightness(1)}50%{filter:brightness(1.6) drop-shadow(0 0 24px #00f0ff)}100%{filter:brightness(1)}}
+  .arena.fatality{animation:fatalityArena 1.9s ease-in-out}
+  .arena.fatality::before{background:
+    radial-gradient(circle at 70% 45%, rgba(145,255,24,.18), transparent 26%),
+    linear-gradient(90deg,rgba(0,240,255,.07) 1px,transparent 1px),
+    linear-gradient(0deg,rgba(0,240,255,.05) 1px,transparent 1px);
+    background-size:auto,32px 32px,32px 32px}
+  @keyframes fatalityArena{
+    0%,100%{filter:brightness(1);transform:translate(0,0)}
+    12%{filter:brightness(.42) saturate(1.8);transform:translate(-3px,2px)}
+    24%{filter:brightness(1.55) saturate(2.3);transform:translate(4px,-2px)}
+    36%{filter:brightness(.65) saturate(1.7);transform:translate(-5px,1px)}
+    52%{filter:brightness(1.85) saturate(2.6);transform:translate(5px,0)}
+    70%{filter:brightness(.8) saturate(2);transform:translate(-2px,-2px)}
+  }
 
   /* ====== CAIXA DE PERGUNTA ====== */
   .qbox{border:2px solid var(--hero-cyan);background:linear-gradient(180deg, rgba(6,18,36,.95), rgba(2,8,18,.98));padding:12px 14px;position:relative;flex-shrink:0}
@@ -765,35 +822,89 @@
 // Os sprites são pixel-art em SVG (shape-rendering: crispEdges)
 // Estilo simplificado mas reconhecível, com cores temáticas.
 
-const spriteSheet = (src, label) =>
-  `<div class="sheet-sprite" role="img" aria-label="${label}" style="background-image:url('${src}')"></div>`;
+const spriteSheet = (src, label, className = '') =>
+  `<div class="sheet-sprite ${className}" role="img" aria-label="${label}" style="background-image:url('${src}')"></div>`;
+
+const TUBOTOX_SPRITES = {
+  idle: 'src/assets/sprites/tubotox/idle.png?v=true-tubotox-2',
+};
+
+const CATETERION_SPRITES = {
+  idle: 'src/assets/sprites/cateterion/idle.png',
+  preparacao: 'src/assets/sprites/cateterion/preparacao.png',
+  ataque: 'src/assets/sprites/cateterion/ataque.png',
+  ataque1: 'src/assets/sprites/cateterion/ataque1.png',
+  skillEspecial: 'src/assets/sprites/cateterion/skill-especial.png',
+  dano: 'src/assets/sprites/cateterion/dano.png',
+  morte: 'src/assets/sprites/cateterion/morte.png',
+  vitoria: 'src/assets/sprites/cateterion/vitoria.png',
+  walk: 'src/assets/sprites/cateterion/walk.png',
+};
+
+const KLEBZOR_SPRITES = {
+  idle: 'src/assets/sprites/klebzor/idle.png',
+  walk: 'src/assets/sprites/klebzor/walk.png?v=walk-real-1',
+  preparacao: 'src/assets/sprites/klebzor/preparacao.png?v=prep-1',
+  skillEspecial: 'src/assets/sprites/klebzor/skill-especial.png?v=1',
+  dano: 'src/assets/sprites/klebzor/dano.png?v=1',
+  morte: 'src/assets/sprites/klebzor/morte.png?v=1',
+  vitoria: 'src/assets/sprites/klebzor/vitoria.png?v=3',
+};
 
 const SPRITES = {
   // ===== HERÓIS =====
-  lelia: '<img src="/src/assets/images/hero_lelia_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
-  juju: '<img src="/src/assets/images/hero_juju_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
+  lelia: '<img src="src/assets/images/hero_lelia_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
+  juju: '<img src="src/assets/images/hero_juju_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
 
   // ===== VILÕES =====
-  sepzilla: spriteSheet('/src/assets/sprites/sepzilla/idle.png', 'Sepzilla'),
-  pseudomor: '<img src="/src/assets/images/illu_pseudomor_1779370106612.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
-  klebzor: '<img src="/src/assets/images/illu_klebzor_1779370139683.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
-  tubotox: '<img src="/src/assets/images/illu_tubotox_1779370090969.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
-  cateterion: '<img src="/src/assets/images/illu_cateterion_1779370172698.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
-  staphurion: '<img src="/src/assets/images/illu_staphurion_1779370188355.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
-  escherika: '<img src="/src/assets/images/illu_escherika_1779370122860.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  sepzilla: spriteSheet('src/assets/sprites/sepzilla/idle.png', 'Sepzilla'),
+  pseudomor: '<img src="src/assets/images/illu_pseudomor_1779370106612.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  klebzor: spriteSheet(KLEBZOR_SPRITES.idle, 'Klebzor', 'klebzor-sprite'),
+  tubotox: spriteSheet(TUBOTOX_SPRITES.idle, 'TuboTox', 'tubotox-sprite'),
+  cateterion: spriteSheet(CATETERION_SPRITES.idle, 'Cateterion', 'cateterion-sprite'),
+  staphurion: '<img src="src/assets/images/illu_staphurion_1779370188355.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  escherika: '<img src="src/assets/images/illu_escherika_1779370122860.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
 };
 
 const MAP_ICONS = {
-  sepzilla: '/src/assets/images/illu_sepzilla_1779370156046.png',
-  pseudomor: '/src/assets/images/illu_pseudomor_1779370106612.png',
-  klebzor: '/src/assets/images/illu_klebzor_1779370139683.png',
-  tubotox: '/src/assets/images/illu_tubotox_1779370090969.png',
-  cateterion: '/src/assets/images/illu_cateterion_1779370172698.png',
-  staphurion: '/src/assets/images/illu_staphurion_1779370188355.png',
-  escherika: '/src/assets/images/illu_escherika_1779370122860.png',
+  sepzilla: 'src/assets/images/illu_sepzilla_1779370156046.png',
+  pseudomor: 'src/assets/images/illu_pseudomor_1779370106612.png',
+  klebzor: 'src/assets/images/illu_klebzor_1779370139683.png',
+  tubotox: 'src/assets/images/illu_tubotox_1779370090969.png',
+  cateterion: 'src/assets/images/illu_cateterion_1779370172698.png',
+  staphurion: 'src/assets/images/illu_staphurion_1779370188355.png',
+  escherika: 'src/assets/images/illu_escherika_1779370122860.png',
 };
 
 // ---------- DADOS DOS HERÓIS ----------
+function setVillainSpriteState(stateName = 'idle'){
+  const villain = state?.villain;
+  if (!villain) return;
+  const spriteConfig = {
+    tubotox: { sprites: TUBOTOX_SPRITES, label: 'TuboTox', baseClass: '' },
+    cateterion: { sprites: CATETERION_SPRITES, label: 'Cateterion', baseClass: 'cateterion-sprite' },
+    klebzor: { sprites: KLEBZOR_SPRITES, label: 'Klebzor', baseClass: 'klebzor-sprite' },
+  }[villain.id];
+  if (!spriteConfig) return;
+
+  const src = spriteConfig.sprites[stateName] || spriteConfig.sprites.idle;
+  const className = stateName === 'morte'
+    ? 'death-sprite'
+    : (stateName === 'vitoria'
+      ? 'victory-sprite'
+      : (stateName === 'walk' ? 'walk-sprite' : (stateName.startsWith('ataque') || stateName === 'skillEspecial' ? 'attack-sprite' : '')));
+  $('#villain-sprite').innerHTML = spriteSheet(src, spriteConfig.label, [spriteConfig.baseClass, className].filter(Boolean).join(' '));
+}
+
+function villainHasSprite(stateName){
+  const spriteConfig = {
+    tubotox: TUBOTOX_SPRITES,
+    cateterion: CATETERION_SPRITES,
+    klebzor: KLEBZOR_SPRITES,
+  }[state?.villain?.id];
+  return Boolean(spriteConfig?.[stateName]);
+}
+
 const HEROES = {
   lelia: {
     id:'lelia',
@@ -827,10 +938,10 @@ const VILLAINS = {
     sci:'PAV (Pneumonia Associada à Ventilação)',
     tag:'O Carrasco dos Pulmões',
     faction: 'Facção Respiratória',
-    hp:10,
+    hp:42,
     color:'#52b8e8',
     glow:'rgba(82,184,232,0.55)',
-    arenaBg:`linear-gradient(rgba(8,35,90,0.55) 0%,rgba(4,12,24,0.78) 100%),url('/src/assets/backgrounds/bg_sepzilla.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(8,35,90,0.55) 0%,rgba(4,12,24,0.78) 100%),url('src/assets/backgrounds/bg_sepzilla.png') center/cover no-repeat`,
     arenaLabel:'UTI RESPIRATÓRIA — PAV',
     arenaTags:['◆ VENTILAÇÃO MECÂNICA','◆ CIRCUITOS','◆ BIOFILME','◆ TUBO OROTRAQUEAL'],
     info:{
@@ -861,6 +972,30 @@ const VILLAINS = {
       {q:'Extubação precoce e interrupção diária da sedação ajudam a evitar PAV?',
        a:['Sim, são medidas obrigatórias do bundle','Não, sedação profunda previne PAV','Apenas em crianças','Mito antigo'],
        correct:0, expl:'Quanto menos tempo entubado e sedado, menor o risco de PAV.'},
+      {q:'Qual cuidado ajuda a reduzir a broncoaspiração em paciente ventilado?',
+       a:['Manter cabeceira elevada','Deixar o paciente totalmente deitado','Aumentar secreção oral','Desconectar o circuito a cada hora'],
+       correct:0, expl:'Cabeceira elevada reduz refluxo e microaspiração de secreções.'},
+      {q:'Quando deve ser feita higiene das mãos na assistência ao paciente em ventilação mecânica?',
+       a:['Só no começo do plantão','Antes e após contato com o paciente ou dispositivo','Apenas se houver secreção visível','Só depois de aspirar'],
+       correct:1, expl:'A higiene das mãos antes e após contato interrompe transmissão cruzada.'},
+      {q:'Sobre aspiração de vias aéreas, a equipe deve:',
+       a:['Aspirar sempre sem necessidade clínica','Usar técnica asséptica e sistema adequado','Reutilizar sonda descartável','Desconectar o ventilador sem cuidado'],
+       correct:1, expl:'Aspiração exige técnica asséptica para evitar levar microrganismos às vias aéreas.'},
+      {q:'Qual sinal deve alertar a equipe para possível PAV?',
+       a:['Melhora súbita da oxigenação','Febre, secreção purulenta e piora respiratória','Ausência total de secreção','Paciente respirando melhor'],
+       correct:1, expl:'Febre, secreção purulenta e piora ventilatória podem indicar pneumonia associada à ventilação.'},
+      {q:'O que fazer com água condensada no circuito do ventilador?',
+       a:['Drenar com cuidado, evitando refluxo para o paciente','Deixar acumular até o fim do turno','Jogar em direção ao tubo','Usar para umidificar a boca'],
+       correct:0, expl:'Condensado pode estar contaminado; deve ser removido sem retornar ao paciente.'},
+      {q:'Qual medida reduz o tempo de ventilação mecânica e o risco de PAV?',
+       a:['Avaliar diariamente possibilidade de despertar e extubação','Manter sedação profunda sem reavaliar','Evitar fisioterapia respiratória','Não revisar parâmetros'],
+       correct:0, expl:'Avaliar diariamente sedação e prontidão para extubação reduz exposição ao ventilador.'},
+      {q:'A higiene oral no paciente ventilado deve ser:',
+       a:['Ignorada se o paciente está sedado','Realizada conforme protocolo institucional','Feita apenas com água uma vez por semana','Substituída por antibiótico'],
+       correct:1, expl:'Higiene oral protocolada diminui colonização da boca e risco de PAV.'},
+      {q:'Por que evitar desconexões desnecessárias do circuito ventilatório?',
+       a:['Porque mantêm o sistema fechado e reduzem contaminação','Porque aumentam a pressão do leito','Porque impedem higiene oral','Porque curam pneumonia'],
+       correct:0, expl:'Manter o sistema fechado reduz manipulação e chance de contaminação.'},
     ]
   },
   klebzor: {
@@ -869,10 +1004,10 @@ const VILLAINS = {
     sci:'Klebsiella pneumoniae',
     tag:'A Criação Multirresistente',
     faction: 'Facção Respiratória',
-    hp:11,
+    hp:26,
     color:'#a855f7',
     glow:'rgba(168,85,247,0.55)',
-    arenaBg:`linear-gradient(rgba(45,8,100,0.55) 0%,rgba(7,2,14,0.78) 100%),url('/src/assets/backgrounds/bg_klebzor.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(45,8,100,0.55) 0%,rgba(7,2,14,0.78) 100%),url('src/assets/backgrounds/bg_klebzor.png') center/cover no-repeat`,
     arenaLabel:'ALA DE ISOLAMENTO — CONTATO',
     arenaTags:['◆ ISOLAMENTO DE CONTATO','◆ RESISTÊNCIA MDR','◆ SUPERFÍCIES','◆ ANTIBIÓTICOS'],
     info:{
@@ -903,7 +1038,31 @@ const VILLAINS = {
         correct:1, expl:'Klebsiella sobrevive em mobiliários; exige limpeza e desinfecção terminal rigorosa.'},
       {q:'Quando paciente colonizado com Klebsiella MDR recebe alta, a unidade deve:',
         a:['Isolar o leito por 72h','Bloquear novos pacientes sem limpeza','Realizar desinfecção terminal imediata','Aplicar radiação apenas'],
-        correct:2, expl:'Limpeza concorrente diária e desinfecção terminal na alta são imprescindíveis.'}
+        correct:2, expl:'Limpeza concorrente diária e desinfecção terminal na alta são imprescindíveis.'},
+      {q:'Qual medida reduz a transmissao cruzada de Klebsiella MDR entre pacientes?',
+        a:['Higienizar as maos nos 5 momentos','Usar a mesma luva para varios leitos','Trocar apenas o jaleco no fim do plantao','Abrir portas e janelas'],
+        correct:0, expl:'Higiene das maos antes e depois do contato e a principal barreira contra transmissao cruzada.'},
+      {q:'Em paciente com suspeita de Klebsiella resistente, a antibioticoterapia deve ser guiada por:',
+        a:['Escolha aleatoria do antibiotico','Cultura e antibiograma','Cor da secrecao','Preferencia do paciente'],
+        correct:1, expl:'Cultura e antibiograma ajudam a escolher o antimicrobiano correto e evitam selecao de resistencia.'},
+      {q:'Qual pratica favorece surtos de Klebsiella MDR na unidade?',
+        a:['Isolamento de contato','Limpeza terminal','Compartilhar equipamentos sem desinfeccao','Identificar precaucao no leito'],
+        correct:2, expl:'Equipamentos compartilhados sem desinfeccao carregam microrganismos entre pacientes.'},
+      {q:'O que deve acontecer com estetoscopio, termometro e outros itens usados no isolamento?',
+        a:['Preferir uso exclusivo ou desinfetar entre pacientes','Guardar no bolso sem limpeza','Usar apenas se estiverem secos','Emprestar para qualquer setor'],
+        correct:0, expl:'Equipamentos dedicados ou desinfetados corretamente reduzem a disseminacao de Klebsiella.'},
+      {q:'Qual atitude ajuda a controlar um possivel surto de KPC?',
+        a:['Ocultar casos para nao assustar a equipe','Notificar CCIH e reforcar vigilancia','Suspender limpeza do quarto','Liberar visita sem orientacao'],
+        correct:1, expl:'A CCIH deve ser acionada para investigar, orientar isolamento, limpeza e rastreio quando necessario.'},
+      {q:'Por que o uso indiscriminado de carbapenemicos e perigoso?',
+        a:['Diminui resistencia bacteriana','Seleciona bacterias resistentes como KPC','Elimina necessidade de cultura','Substitui higiene das maos'],
+        correct:1, expl:'Uso inadequado de antibioticos de amplo espectro seleciona microrganismos multirresistentes.'},
+      {q:'Paciente com Klebsiella MDR deve ter qual cuidado na movimentacao dentro do hospital?',
+        a:['Circular livremente sem aviso','Transportar com precaucao, comunicando o setor receptor','Retirar identificacao de isolamento','Usar o mesmo avental no corredor'],
+        correct:1, expl:'O transporte deve ser planejado e o setor receptor precisa saber das precaucoes.'},
+      {q:'Na limpeza concorrente do quarto de isolamento, qual area merece atencao especial?',
+        a:['Superficies de alto toque, como grades, mesas e bombas','Somente teto e luminarias','Apenas o piso longe do leito','Nenhuma, se nao houver sujeira visivel'],
+        correct:0, expl:'Superficies tocadas com frequencia acumulam microrganismos e precisam de desinfeccao correta.'}
     ]
   },
 
@@ -917,7 +1076,7 @@ const VILLAINS = {
     hp:9,
     color:'#e83a5a',
     glow:'rgba(232,58,90,0.55)',
-    arenaBg:`linear-gradient(rgba(110,8,25,0.55) 0%,rgba(14,2,6,0.78) 100%),url('/src/assets/backgrounds/bg_cateterion.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(110,8,25,0.55) 0%,rgba(14,2,6,0.78) 100%),url('src/assets/backgrounds/bg_cateterion.png') center/cover no-repeat`,
     arenaLabel:'HEMODINÂMICA — CORRENTE SANGUÍNEA',
     arenaTags:['◆ CATETER CENTRAL','◆ BUNDLE CVC','◆ SCRUB THE HUB','◆ IPCS'],
     info:{
@@ -960,7 +1119,7 @@ const VILLAINS = {
     hp:11,
     color:'#f0b800',
     glow:'rgba(240,184,0,0.55)',
-    arenaBg:`linear-gradient(rgba(90,65,0,0.5) 0%,rgba(14,10,1,0.78) 100%),url('/src/assets/backgrounds/bg_staphurion.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(90,65,0,0.5) 0%,rgba(14,10,1,0.78) 100%),url('src/assets/backgrounds/bg_staphurion.png') center/cover no-repeat`,
     arenaLabel:'CENTRO CIRÚRGICO — MRSA',
     arenaTags:['◆ FERIDA OPERATÓRIA','◆ CLOREXIDINA','◆ PRECAUÇÃO DE CONTATO','◆ EPI'],
     info:{
@@ -1004,7 +1163,7 @@ const VILLAINS = {
     hp:9,
     color:'#70c040',
     glow:'rgba(112,192,64,0.55)',
-    arenaBg:`linear-gradient(rgba(15,75,5,0.52) 0%,rgba(5,14,2,0.78) 100%),url('/src/assets/backgrounds/bg_escherika.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(15,75,5,0.52) 0%,rgba(5,14,2,0.78) 100%),url('src/assets/backgrounds/bg_escherika.png') center/cover no-repeat`,
     arenaLabel:'ALA UROLÓGICA — SONDA VESICAL',
     arenaTags:['◆ SVD','◆ TÉCNICA ASSÉPTICA','◆ HIGIENE ÍNTIMA','◆ AVALIAÇÃO DIÁRIA'],
     info:{
@@ -1049,7 +1208,7 @@ const VILLAINS = {
     hp:10,
     color:'#39ff8c',
     glow:'rgba(57,255,140,0.55)',
-    arenaBg:`linear-gradient(rgba(5,80,28,0.52) 0%,rgba(4,16,8,0.78) 100%),url('/src/assets/backgrounds/bg_pseudomor.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(5,80,28,0.52) 0%,rgba(4,16,8,0.78) 100%),url('src/assets/backgrounds/bg_pseudomor.png') center/cover no-repeat`,
     arenaLabel:'EXPURGO — AMBIENTE ÚMIDO',
     arenaTags:['◆ NEBULIZADOR','◆ PIAS E RALOS','◆ BIOFILME','◆ SECAGEM RIGOROSA'],
     info:{
@@ -1093,7 +1252,7 @@ const VILLAINS = {
     hp:14,
     color:'#ff2d6f',
     glow:'rgba(255,45,111,0.7)',
-    arenaBg:`linear-gradient(rgba(140,5,25,0.58) 0%,rgba(14,2,4,0.78) 100%),url('/src/assets/backgrounds/bg_sepzilla.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(140,5,25,0.58) 0%,rgba(14,2,4,0.78) 100%),url('src/assets/backgrounds/bg_sepzilla.png') center/cover no-repeat`,
     arenaLabel:'UTI CRÍTICA — CHOQUE SÉPTICO',
     arenaTags:['◆ SEPSE','◆ FALÊNCIA MÚLTIPLA','◆ BUNDLE SEPSE','◆ ANTIBIÓTICO 1H'],
     info:{
@@ -1326,15 +1485,8 @@ function buildMap() {
       let isLocked = true;
       
       if (node.type !== 'locked') {
-        const nodeIndex = section.nodes.findIndex(n => n.id === node.id);
-        const prevNodeId = nodeIndex > 0 ? section.nodes[nodeIndex-1].id : null;
-        
-        if (isDone) {
-          isLocked = false;
-        } else if (nodeIndex === 0 || (prevNodeId && userProgress.completedNodes.includes(prevNodeId))) {
-          isCurrent = true;
-          isLocked = false;
-        }
+        isLocked = false;
+        isCurrent = !isDone;
       }
       
       let stateClass = 'locked';
@@ -1667,6 +1819,7 @@ async function startBattle(){
   // sprites
   $('#hero-sprite').innerHTML = `<div class="hero-aura"></div><div class="hero-aura inner"></div>` + SPRITES[h.id];
   $('#villain-sprite').innerHTML = SPRITES[v.id];
+  setVillainSpriteState('idle');
 
   // nomes/HP
   $('#hero-name').textContent = h.name;
@@ -1753,7 +1906,10 @@ function showExpl(isCorrect, text){
   popup.className = 'q-popup show ' + (isCorrect ? 'correct' : 'wrong');
 }
 
-function onConfirm(){
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const RESULT_REVEAL_DELAY = 650;
+
+async function onConfirm(){
   if(state.selected === null || state.locked) return;
   state.locked = true;
   const v = state.villain;
@@ -1762,32 +1918,35 @@ function onConfirm(){
   const correctIdx = q.correct;
 
   if(state.selected === correctIdx){
-    optsEls[state.selected].classList.add('correct');
     state.score++;
     state.combo++;
     const dmg = 2 + Math.floor(state.combo/2);
-    heroAttack(dmg);
+    await heroAttack(dmg);
     if(state.hero.id==='lelia' && state.combo > 0 && state.combo % 2 === 0 && state.heroHP < state.heroMax){
       state.heroHP = Math.min(state.heroMax, state.heroHP+1);
+      updateHPUI();
     }
+    await wait(RESULT_REVEAL_DELAY);
+    optsEls[state.selected].classList.add('correct');
     showExpl(true, q.expl);
   } else {
+    state.combo = 0;
+    await villainAttack(2, { finalBlow: state.heroHP <= 2 });
+    await wait(RESULT_REVEAL_DELAY);
     optsEls[state.selected].classList.add('wrong');
     optsEls[correctIdx].classList.add('correct');
-    state.combo = 0;
-    villainAttack(2);
     showExpl(false, q.expl);
   }
 
-  setTimeout(()=>{
-    state.qIndex++;
-    if(state.heroHP <= 0) return endBattle(false);
-    if(state.villainHP <= 0) return endBattle(true);
-    loadQuestion();
-  }, 3000);
+  await wait(2200);
+  state.qIndex++;
+  if(state.heroHP <= 0) return endBattle(false);
+  if(state.villainHP <= 0) return endBattle(true);
+  loadQuestion();
 }
 
 function heroAttack(dmg){
+  return new Promise(resolve => {
   const proj = $('#projectile');
   proj.classList.remove('fire');
   void proj.offsetWidth;
@@ -1796,19 +1955,58 @@ function heroAttack(dmg){
   setTimeout(()=>{
     state.villainHP = Math.max(0, state.villainHP - dmg);
     const villainEl = $('#villain-sprite');
+    setVillainSpriteState('dano');
     villainEl.classList.add('shake');
     villainEl.classList.add('flash-red');
     spawnDmg(`-${dmg}`,'hit-villain', 'villain');
     updateHPUI();
-    setTimeout(()=>{ villainEl.classList.remove('shake'); villainEl.classList.remove('flash-red'); }, 500);
+    setTimeout(()=>{
+      villainEl.classList.remove('shake');
+      villainEl.classList.remove('flash-red');
+      setVillainSpriteState('idle');
+      resolve();
+    }, 500);
   }, 500);
+  });
 }
 
-function villainAttack(dmg){
-  const proj = $('#villain-counter');
-  proj.classList.remove('fire');
-  void proj.offsetWidth;
-  proj.classList.add('fire');
+function villainAttack(dmg, options = {}){
+  return new Promise(resolve => {
+  const isFinalBlow = options.finalBlow && villainHasSprite('skillEspecial');
+  const villainZone = document.querySelector('.villain-zone');
+  const arena = $('#arena');
+  villainZone.classList.remove('walk-attack');
+  arena.classList.remove('fatality');
+  void villainZone.offsetWidth;
+  villainZone.classList.add('walk-attack');
+  setVillainSpriteState('walk');
+
+  setTimeout(()=>{
+    setVillainSpriteState(villainHasSprite('preparacao') ? 'preparacao' : 'walk');
+  }, 650);
+
+  setTimeout(()=>{
+    const strikeState = isFinalBlow
+      ? 'skillEspecial'
+      : (villainHasSprite('preparacao') ? 'preparacao' : 'walk');
+    setVillainSpriteState(strikeState);
+    if(isFinalBlow){
+      void arena.offsetWidth;
+      arena.classList.add('fatality');
+    }
+    const proj = $('#villain-counter');
+    const arenaRect = $('#arena').getBoundingClientRect();
+    const villainRect = villainZone.getBoundingClientRect();
+    const isKlebzor = state.villain?.id === 'klebzor';
+    const mouthX = villainRect.left - arenaRect.left + 40;
+    const mouthY = villainRect.top - arenaRect.top + 82;
+    proj.style.left = `${mouthX - (isFinalBlow ? 72 : (isKlebzor ? 48 : 34))}px`;
+    proj.style.top = `${mouthY - (isFinalBlow ? 56 : (isKlebzor ? 48 : 36))}px`;
+    proj.style.right = 'auto';
+    proj.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+    void proj.offsetWidth;
+    proj.classList.add(isFinalBlow ? (isKlebzor ? 'klebzor-special-fire' : 'special-fire') : (isKlebzor ? 'klebzor-fire' : 'fire'));
+  }, isFinalBlow ? 1000 : 1050);
 
   setTimeout(()=>{
     state.heroHP = Math.max(0, state.heroHP - dmg);
@@ -1817,8 +2015,17 @@ function villainAttack(dmg){
     heroEl.classList.add('flash-red');
     spawnDmg(`-${dmg}`,'hit-hero', 'hero');
     updateHPUI();
-    setTimeout(()=>{ heroEl.classList.remove('shake'); heroEl.classList.remove('flash-red'); }, 500);
-  }, 500);
+    setTimeout(()=>{
+      heroEl.classList.remove('shake');
+      heroEl.classList.remove('flash-red');
+      setVillainSpriteState('idle');
+      villainZone.classList.remove('walk-attack');
+      arena.classList.remove('fatality');
+      $('#villain-counter').classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+      resolve();
+    }, isFinalBlow ? 800 : 500);
+  }, isFinalBlow ? 2050 : 1550);
+  });
 }
 
 function spawnDmg(text, cls, where){
@@ -1832,8 +2039,34 @@ function spawnDmg(text, cls, where){
   setTimeout(()=> el.remove(), 1000);
 }
 
+function playVillainDeath(){
+  return new Promise(resolve => {
+    if(!villainHasSprite('morte')) return resolve();
+    $('.q-popup').className = 'q-popup';
+    document.querySelector('.villain-zone')?.classList.remove('walk-attack');
+    $('#arena')?.classList.remove('fatality');
+    $('#villain-counter')?.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+    setVillainSpriteState('morte');
+    setTimeout(resolve, 1250);
+  });
+}
+
+function playVillainVictory(){
+  return new Promise(resolve => {
+    if(!villainHasSprite('vitoria')) return resolve();
+    $('.q-popup').className = 'q-popup';
+    document.querySelector('.villain-zone')?.classList.remove('walk-attack');
+    $('#arena')?.classList.remove('fatality');
+    $('#villain-counter')?.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+    setVillainSpriteState('vitoria');
+    setTimeout(resolve, 1400);
+  });
+}
+
 // ---------- FIM ----------
-function endBattle(won){
+async function endBattle(won){
+  if(won) await playVillainDeath();
+  else await playVillainVictory();
   saveScore();
 
   if(won) {
