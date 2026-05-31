@@ -251,6 +251,7 @@
   .sheet-sprite.attack-sprite{animation-duration:.72s}
   .sheet-sprite.walk-sprite{animation-duration:.72s}
   .sheet-sprite.victory-sprite{animation-duration:1s}
+  .sheet-sprite.damage-sprite{animation-duration:.5s}
   .sheet-sprite.death-sprite{animation:spriteDeath 1.15s steps(7) forwards}
   .villain-zone .sheet-sprite.klebzor-sprite{transform:translateX(-18px) scale(1.14);transform-origin:center bottom}
   .villain-zone .sprite{--sprite-size:190px}
@@ -303,15 +304,21 @@
     animation:klebzorSpecialSprite 1.08s steps(8) forwards, specialProj 1.08s ease-out forwards;
   }
   .villain-counter.special-fire{
-    width:112px;height:112px;
-    background:url('src/assets/sprites/tubotox/skill-especial-fx.png') 0 0/896px 112px no-repeat;
+    width:256px;height:256px;
+    background:url('src/assets/sprites/tubotox/skill-especial-fx.png?v=skill-especial-fx-contained-v1') 0 0/2048px 256px no-repeat;
     filter:drop-shadow(0 0 18px rgba(170,255,24,.8)) drop-shadow(0 0 34px rgba(90,255,40,.45));
+    animation:specialSprite 1.08s steps(8) forwards, specialProj 1.08s ease-out forwards;
+  }
+  .villain-counter.escherika-special-fire{
+    width:256px;height:256px;
+    background:url('src/assets/sprites/escherika/skill-especial-fx.png?v=skill-especial-fx-left-v3') 0 0/2048px 256px no-repeat;
+    filter:drop-shadow(0 0 18px rgba(180,255,36,.82)) drop-shadow(0 0 36px rgba(190,50,255,.48));
     animation:specialSprite 1.08s steps(8) forwards, specialProj 1.08s ease-out forwards;
   }
   @keyframes gooSprite{to{background-position:-592px 0}}
   @keyframes klebzorMucusSprite{to{background-position:-768px 0}}
   @keyframes klebzorSpecialSprite{to{background-position:-1024px 0}}
-  @keyframes specialSprite{to{background-position:-896px 0}}
+  @keyframes specialSprite{to{background-position:-2048px 0}}
   @keyframes counterProj{
     0%{opacity:.25;transform:translate(0,0) scale(.45)}
     14%{opacity:1;transform:translate(-14px,-6px) scale(.9)}
@@ -826,7 +833,14 @@ const spriteSheet = (src, label, className = '') =>
   `<div class="sheet-sprite ${className}" role="img" aria-label="${label}" style="background-image:url('${src}')"></div>`;
 
 const TUBOTOX_SPRITES = {
-  idle: 'src/assets/sprites/tubotox/idle.png?v=true-tubotox-2',
+  idle: 'src/assets/sprites/tubotox/idle.png?v=idle-left-reference-v2',
+  walk: 'src/assets/sprites/tubotox/walk.png?v=walk-left-reference-v1',
+  preparacao: 'src/assets/sprites/tubotox/preparacao.png?v=preparacao-left-reference-v2',
+  ataque1: 'src/assets/sprites/tubotox/ataque1.png?v=ataque1-body-left-v1',
+  skillEspecial: 'src/assets/sprites/tubotox/skill-especial.png?v=skill-especial-body-left-v2',
+  dano: 'src/assets/sprites/tubotox/dano.png?v=dano-left-arms-v2',
+  morte: 'src/assets/sprites/tubotox/morte.png?v=morte-left-disintegrate-v1',
+  vitoria: 'src/assets/sprites/tubotox/vitoria.png?v=vitoria-left-celebrate-v1',
 };
 
 const CATETERION_SPRITES = {
@@ -851,6 +865,16 @@ const KLEBZOR_SPRITES = {
   vitoria: 'src/assets/sprites/klebzor/vitoria.png?v=3',
 };
 
+const ESCHERIKA_SPRITES = {
+  idle: 'src/assets/sprites/escherika/idle.png?v=idle-left-reference-v1',
+  ocioso: 'src/assets/sprites/escherika/ocioso.png?v=ocioso-left-reference-v1',
+  walk: 'src/assets/sprites/escherika/walk.png?v=walk-left-reference-v1',
+  preparacao: 'src/assets/sprites/escherika/preparacao.png?v=preparacao-left-anticipation-v2',
+  ataque: 'src/assets/sprites/escherika/ataque.png?v=ataque1-body-left-contained-v3',
+  ataque1: 'src/assets/sprites/escherika/ataque1.png?v=ataque1-body-left-contained-v3',
+  skillEspecial: 'src/assets/sprites/escherika/skill-especial.png?v=skill-especial-body-left-v3',
+};
+
 const SPRITES = {
   // ===== HERÓIS =====
   lelia: '<img src="src/assets/images/hero_lelia_new.png" style="width:100%;height:100%;object-fit:contain;object-position:center bottom;" />',
@@ -863,7 +887,7 @@ const SPRITES = {
   tubotox: spriteSheet(TUBOTOX_SPRITES.idle, 'TuboTox', 'tubotox-sprite'),
   cateterion: spriteSheet(CATETERION_SPRITES.idle, 'Cateterion', 'cateterion-sprite'),
   staphurion: '<img src="src/assets/images/illu_staphurion_1779370188355.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
-  escherika: '<img src="src/assets/images/illu_escherika_1779370122860.png" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />',
+  escherika: spriteSheet(ESCHERIKA_SPRITES.idle, 'Escherika', 'escherika-sprite'),
 };
 
 const MAP_ICONS = {
@@ -884,15 +908,18 @@ function setVillainSpriteState(stateName = 'idle'){
     tubotox: { sprites: TUBOTOX_SPRITES, label: 'TuboTox', baseClass: '' },
     cateterion: { sprites: CATETERION_SPRITES, label: 'Cateterion', baseClass: 'cateterion-sprite' },
     klebzor: { sprites: KLEBZOR_SPRITES, label: 'Klebzor', baseClass: 'klebzor-sprite' },
+    escherika: { sprites: ESCHERIKA_SPRITES, label: 'Escherika', baseClass: 'escherika-sprite' },
   }[villain.id];
   if (!spriteConfig) return;
 
   const src = spriteConfig.sprites[stateName] || spriteConfig.sprites.idle;
   const className = stateName === 'morte'
-    ? 'death-sprite'
-    : (stateName === 'vitoria'
-      ? 'victory-sprite'
-      : (stateName === 'walk' ? 'walk-sprite' : (stateName.startsWith('ataque') || stateName === 'skillEspecial' ? 'attack-sprite' : '')));
+      ? 'death-sprite'
+      : (stateName === 'vitoria'
+        ? 'victory-sprite'
+        : (stateName === 'dano'
+          ? 'damage-sprite'
+          : (stateName === 'walk' ? 'walk-sprite' : (stateName.startsWith('ataque') || stateName === 'skillEspecial' ? 'attack-sprite' : ''))));
   $('#villain-sprite').innerHTML = spriteSheet(src, spriteConfig.label, [spriteConfig.baseClass, className].filter(Boolean).join(' '));
 }
 
@@ -901,6 +928,7 @@ function villainHasSprite(stateName){
     tubotox: TUBOTOX_SPRITES,
     cateterion: CATETERION_SPRITES,
     klebzor: KLEBZOR_SPRITES,
+    escherika: ESCHERIKA_SPRITES,
   }[state?.villain?.id];
   return Boolean(spriteConfig?.[stateName]);
 }
@@ -1988,7 +2016,7 @@ function villainAttack(dmg, options = {}){
   setTimeout(()=>{
     const strikeState = isFinalBlow
       ? 'skillEspecial'
-      : (villainHasSprite('preparacao') ? 'preparacao' : 'walk');
+      : (villainHasSprite('ataque1') ? 'ataque1' : (villainHasSprite('preparacao') ? 'preparacao' : 'walk'));
     setVillainSpriteState(strikeState);
     if(isFinalBlow){
       void arena.offsetWidth;
@@ -1998,14 +2026,21 @@ function villainAttack(dmg, options = {}){
     const arenaRect = $('#arena').getBoundingClientRect();
     const villainRect = villainZone.getBoundingClientRect();
     const isKlebzor = state.villain?.id === 'klebzor';
+    const isTubotox = state.villain?.id === 'tubotox';
+    const isEscherika = state.villain?.id === 'escherika';
     const mouthX = villainRect.left - arenaRect.left + 40;
     const mouthY = villainRect.top - arenaRect.top + 82;
-    proj.style.left = `${mouthX - (isFinalBlow ? 72 : (isKlebzor ? 48 : 34))}px`;
-    proj.style.top = `${mouthY - (isFinalBlow ? 56 : (isKlebzor ? 48 : 36))}px`;
+    const finalOffsetX = (isTubotox || isEscherika) ? 128 : 72;
+    const finalOffsetY = (isTubotox || isEscherika) ? 128 : 56;
+    proj.style.left = `${mouthX - (isFinalBlow ? finalOffsetX : (isKlebzor ? 48 : 34))}px`;
+    proj.style.top = `${mouthY - (isFinalBlow ? finalOffsetY : (isKlebzor ? 48 : 36))}px`;
     proj.style.right = 'auto';
-    proj.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+    proj.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire', 'escherika-special-fire');
     void proj.offsetWidth;
-    proj.classList.add(isFinalBlow ? (isKlebzor ? 'klebzor-special-fire' : 'special-fire') : (isKlebzor ? 'klebzor-fire' : 'fire'));
+    const counterClass = isFinalBlow
+      ? (isKlebzor ? 'klebzor-special-fire' : (isEscherika ? 'escherika-special-fire' : 'special-fire'))
+      : (isKlebzor ? 'klebzor-fire' : 'fire');
+    proj.classList.add(counterClass);
   }, isFinalBlow ? 1000 : 1050);
 
   setTimeout(()=>{
@@ -2021,7 +2056,7 @@ function villainAttack(dmg, options = {}){
       setVillainSpriteState('idle');
       villainZone.classList.remove('walk-attack');
       arena.classList.remove('fatality');
-      $('#villain-counter').classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+      $('#villain-counter').classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire', 'escherika-special-fire');
       resolve();
     }, isFinalBlow ? 800 : 500);
   }, isFinalBlow ? 2050 : 1550);
@@ -2045,7 +2080,7 @@ function playVillainDeath(){
     $('.q-popup').className = 'q-popup';
     document.querySelector('.villain-zone')?.classList.remove('walk-attack');
     $('#arena')?.classList.remove('fatality');
-    $('#villain-counter')?.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+    $('#villain-counter')?.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire', 'escherika-special-fire');
     setVillainSpriteState('morte');
     setTimeout(resolve, 1250);
   });
@@ -2057,7 +2092,7 @@ function playVillainVictory(){
     $('.q-popup').className = 'q-popup';
     document.querySelector('.villain-zone')?.classList.remove('walk-attack');
     $('#arena')?.classList.remove('fatality');
-    $('#villain-counter')?.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire');
+    $('#villain-counter')?.classList.remove('fire', 'special-fire', 'klebzor-fire', 'klebzor-special-fire', 'escherika-special-fire');
     setVillainSpriteState('vitoria');
     setTimeout(resolve, 1400);
   });
