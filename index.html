@@ -176,8 +176,12 @@
   .map-critical-text{font-family:var(--font-ui);font-size:13px;color:#b9c8e8;font-weight:800;text-transform:uppercase;margin-top:2px}
   .map-node.image-only{
     display:block;
-    min-height:420px;
-    background:var(--map-card-image) center/cover no-repeat;
+    min-height:0;
+    aspect-ratio:1672/941;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.22)),
+      var(--map-card-image) center/contain no-repeat,
+      #020814;
   }
   .map-node.image-only::before{
     background:linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.18));
@@ -220,7 +224,7 @@
     .map-section{max-width:100%}
     .map-path{grid-template-columns:1fr;padding-left:14px;padding-right:14px}
     .map-node{grid-template-columns:1fr;min-height:auto}
-    .map-node.image-only{min-height:260px}
+    .map-node.image-only{min-height:0}
     .map-node-art{min-height:260px}
     .map-node-info{border-left:0;border-top:1px solid rgba(0,240,255,.35);padding:22px 18px}
     .map-node-title{font-size:24px}
@@ -1701,6 +1705,14 @@ function getMapSprite(v){
   return `<img src="${icon}" alt="${escapeHtml(v.name)}" />`;
 }
 
+const MAP_CARD_IMAGES = {
+  tubotox: 'src/assets/backgrounds/card_tubotox_pav_patient.png',
+  klebzor: 'src/assets/backgrounds/card_klebzor_mdr_sondas.png',
+  cateterion: 'src/assets/backgrounds/card_cateterion_cvc_ipcs_v5.png',
+  escherika: 'src/assets/backgrounds/card_escherika_svd_uti_v4.png',
+  sepzilla: 'src/assets/backgrounds/card_sepzilla_choque_septico_v2.png',
+};
+
 function renderHospitalMap() {
   const container = $('#map-container');
   container.innerHTML = '';
@@ -1742,9 +1754,9 @@ function renderHospitalMap() {
         const effects = getMapEffects(v);
         nodeEl.style.setProperty('--map-glow', v.glow || 'rgba(0,240,255,.26)');
         nodeEl.style.setProperty('--map-room', v.arenaBg || `linear-gradient(135deg, ${v.color}33, #07101f 72%)`);
-        if (v.id === 'tubotox') {
+        if (MAP_CARD_IMAGES[v.id]) {
           nodeEl.classList.add('image-only');
-          nodeEl.style.setProperty('--map-card-image', `url('src/assets/backgrounds/card_tubotox_pav_patient.png')`);
+          nodeEl.style.setProperty('--map-card-image', `url('${MAP_CARD_IMAGES[v.id]}')`);
           nodeEl.setAttribute('aria-label', `${v.name} - ${v.sci}`);
         } else {
           nodeEl.innerHTML = `
