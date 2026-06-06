@@ -79,32 +79,109 @@
   
   .map-scroll-area {
     width: 100%; flex: 1; overflow-y: auto; overflow-x: hidden;
-    padding-bottom: 90px;
-    background-image: radial-gradient(ellipse at 50% 50%, rgba(0,240,255,0.03), transparent 60%);
+    padding-bottom: 96px;
+    background:
+      linear-gradient(rgba(5,10,24,.92), rgba(5,10,24,.96)),
+      linear-gradient(90deg, rgba(0,240,255,.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(0,240,255,.08) 1px, transparent 1px);
+    background-size: auto, 72px 72px, 72px 72px;
   }
-  .map-section { width: 100%; max-width: 600px; margin: 0 auto 24px auto; }
+  .map-section { width: 100%; max-width: 920px; margin: 0 auto 24px auto; }
   .map-section-header {
     color: #000; padding: 12px 18px; text-align: center;
-    border-radius: 12px; margin: 14px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    border-radius: 8px; margin: 14px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
   }
   .map-section-header h3 { font-family: 'Press Start 2P', monospace; font-size: 12px; margin-bottom: 6px; }
   .map-section-header p { font-family: 'VT323', monospace; font-size: 20px; margin: 0; }
   
-  .map-path { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 8px 0; position: relative; }
+  .map-path {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 8px 24px 20px;
+    position: relative;
+  }
   
   .map-node {
-    width: 72px; height: 72px; border-radius: 50%;
-    background: #2a3441; border: 4px solid #1a2332;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; position: relative; z-index: 2;
-    transition: transform 0.2s; box-shadow: 0 8px 0 #0d131f;
+    min-height: 360px;
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(13,22,42,.96), rgba(5,9,20,.98)),
+      repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,.025) 18px 19px);
+    border: 1px solid rgba(0,240,255,.72);
+    display: grid;
+    grid-template-columns: minmax(340px, 1.35fr) minmax(280px, .8fr);
+    align-items: stretch;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    transition: transform 0.2s, border-color .2s, box-shadow .2s;
+    box-shadow: 0 8px 0 #050915, 0 18px 30px rgba(0,0,0,.35);
   }
-  .map-node:active { transform: translateY(8px); box-shadow: 0 0 0 #0d131f; }
-  .map-node.done { background: var(--hero-cyan); border-color: #fff; box-shadow: 0 8px 0 #008899; }
-  .map-node.current { background: var(--warn); border-color: #fff; box-shadow: 0 8px 0 #cc9900; animation: pulseNode 1.5s infinite; }
-  .map-node.locked { opacity: 1; cursor: not-allowed; filter: grayscale(.2); }
-  .map-node:active.locked { transform: none; box-shadow: 0 8px 0 #0d131f; }
-  .map-node img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.65); }
+  .map-node::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 54px 58px, var(--map-glow, rgba(0,240,255,.26)), transparent 72px),
+      linear-gradient(90deg, rgba(255,255,255,.05), transparent 38%);
+    pointer-events:none;
+  }
+  .map-node:active { transform: translateY(8px); box-shadow: 0 0 0 #050915; }
+  .map-node.done { border-color: rgba(0,240,255,.75); box-shadow: 0 8px 0 #008899, 0 0 24px rgba(0,240,255,.22); }
+  .map-node.current { border-color: var(--warn); box-shadow: 0 8px 0 #cc9900, 0 0 24px rgba(255,207,58,.2); animation: pulseNode 1.5s infinite; }
+  .map-node.locked { opacity: .76; cursor: not-allowed; filter: grayscale(.25); }
+  .map-node:active.locked { transform: none; box-shadow: 0 8px 0 #050915; }
+  .map-node img { width: 100%; height: 100%; object-fit: cover; border-radius: 0; border: 0; }
+  .map-node-art{
+    position:relative;
+    min-height:360px;
+    background:
+      linear-gradient(90deg, rgba(1,7,18,.08), rgba(1,7,18,.42)),
+      var(--map-room, #112033);
+    background-size: cover;
+    background-position: center;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .map-node-art::after{
+    content:"";
+    position:absolute;
+    inset:auto 10px 12px;
+    height:18px;
+    border-radius:50%;
+    background:radial-gradient(ellipse, rgba(0,0,0,.55), transparent 70%);
+  }
+  .map-node-art img{position:relative;z-index:1;width:62%;height:78%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 18px 18px rgba(0,0,0,.65))}
+  .map-node-art .sheet-sprite{--sprite-size:170px;position:relative;z-index:2;width:170px;height:170px;margin-bottom:74px;filter:drop-shadow(0 18px 18px rgba(0,0,0,.65))}
+  .map-scene-label{position:absolute;left:24px;top:24px;z-index:3;font-family:var(--font-ui);font-size:12px;color:var(--hero-cyan);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+  .map-scene-sector{position:absolute;left:24px;bottom:24px;right:24px;z-index:3;padding:12px 14px;border:1px solid rgba(0,240,255,.55);background:rgba(2,8,20,.72);font-family:var(--font-ui);font-size:18px;color:#fff;font-weight:800;text-transform:uppercase;line-height:1.15}
+  .map-node-info{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:30px 32px;min-width:0;border-left:1px solid rgba(0,240,255,.35);background:linear-gradient(180deg, rgba(3,7,17,.88), rgba(3,7,17,.98))}
+  .map-node-kicker{font-family:var(--font-ui);font-size:15px;color:var(--hero-cyan);font-weight:800;text-transform:uppercase;line-height:1.1}
+  .map-node-title{font-family:var(--font-ui);font-size:30px;color:#fff;font-weight:800;line-height:1.05;text-transform:uppercase}
+  .map-node-place{font-family:var(--font-ui);font-size:18px;color:#b9c8e8;font-weight:800;line-height:1.15;text-transform:uppercase}
+  .map-node-effect{font-family:var(--font-readable);font-size:18px;color:#b9c8e8;line-height:1.32;font-weight:650}
+  .map-node-status{font-family:var(--font-ui);font-size:12px;color:#8fa3c7;font-weight:800;text-transform:uppercase}
+  .map-effect-list{display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(0,240,255,.22);border-bottom:1px solid rgba(0,240,255,.22)}
+  .map-effect-row{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(0,240,255,.18)}
+  .map-effect-row:last-child{border-bottom:0}
+  .map-effect-icon{width:54px;height:46px;display:grid;place-items:center;border:1px solid rgba(0,240,255,.6);border-radius:8px;color:var(--hero-cyan);font-family:var(--font-ui);font-size:20px;font-weight:800;background:rgba(0,240,255,.06)}
+  .map-effect-name{font-family:var(--font-ui);font-size:13px;color:var(--hero-cyan);font-weight:800;text-transform:uppercase;margin-bottom:3px}
+  .map-critical-box{display:grid;grid-template-columns:54px 1fr;gap:14px;align-items:center;margin-top:4px;padding:14px;border:1px solid rgba(255,45,111,.74);background:rgba(255,45,111,.08)}
+  .map-critical-icon{width:52px;height:48px;display:grid;place-items:center;border:1px solid rgba(255,45,111,.75);border-radius:8px;color:var(--danger);font-family:var(--font-ui);font-size:22px;font-weight:800}
+  .map-critical-title{font-family:var(--font-ui);font-size:17px;color:var(--danger);font-weight:800;text-transform:uppercase}
+  .map-critical-text{font-family:var(--font-ui);font-size:13px;color:#b9c8e8;font-weight:800;text-transform:uppercase;margin-top:2px}
+  .map-node.image-only{
+    display:block;
+    min-height:420px;
+    background:var(--map-card-image) center/cover no-repeat;
+  }
+  .map-node.image-only::before{
+    background:linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.18));
+  }
   .map-node.locked::after {
     content: "🔒";
     position: absolute;
@@ -126,9 +203,30 @@
   .map-path svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
   
   @keyframes pulseNode {
-    0% { transform: scale(1); box-shadow: 0 8px 0 #cc9900; }
-    50% { transform: scale(1.05); box-shadow: 0 8px 0 #cc9900, 0 0 20px rgba(255,207,58,0.5); }
-    100% { transform: scale(1); box-shadow: 0 8px 0 #cc9900; }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+
+  .hospital-path-rail{
+    grid-column:1/-1;
+    height:16px;
+    border-radius:999px;
+    background:linear-gradient(90deg, transparent, rgba(0,240,255,.22), rgba(255,207,58,.26), transparent);
+    border:1px solid rgba(255,255,255,.06);
+  }
+
+  @media (max-width: 620px){
+    .map-section{max-width:100%}
+    .map-path{grid-template-columns:1fr;padding-left:14px;padding-right:14px}
+    .map-node{grid-template-columns:1fr;min-height:auto}
+    .map-node.image-only{min-height:260px}
+    .map-node-art{min-height:260px}
+    .map-node-info{border-left:0;border-top:1px solid rgba(0,240,255,.35);padding:22px 18px}
+    .map-node-title{font-size:24px}
+    .map-node-effect{font-size:16px}
+    .map-effect-row{grid-template-columns:46px 1fr}
+    .map-effect-icon{width:44px;height:42px}
   }
 
   .map-navbar {
@@ -223,18 +321,18 @@
   .arena::after{content:attr(data-env,"ALA NEP — SETOR CCIH");position:absolute;top:10px;left:50%;transform:translateX(-50%);
     font-family:'Press Start 2P';font-size:8px;color:var(--hero-cyan);opacity:.7;letter-spacing:2px;white-space:nowrap}
 
-  .floor-tags{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-around;font-family:'Press Start 2P';font-size:7px;color:var(--muted);opacity:.5;flex-wrap:wrap;gap:4px;padding:0 4px}
+  .floor-tags{display:none}
 
-  .hero-zone, .villain-zone{position:absolute;top:50%;bottom:auto;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .hero-zone, .villain-zone{position:absolute;bottom:-8px;display:flex;flex-direction:column;align-items:center;gap:4px}
   .hero-zone{left:8%;animation:bob 2.2s ease-in-out infinite}
   .villain-zone{right:6%;animation:bob 2.6s ease-in-out infinite reverse}
-  @keyframes bob{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 6px))}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .villain-zone.walk-attack{animation:villainAdvance 2.1s ease-in-out forwards}
   @keyframes villainAdvance{
-    0%{transform:translateY(-50%) translateX(0)}
-    34%{transform:translateY(calc(-50% - 4px)) translateX(-20vw)}
-    72%{transform:translateY(calc(-50% - 4px)) translateX(-20vw)}
-    100%{transform:translateY(-50%) translateX(0)}
+    0%{transform:translateY(0) translateX(0)}
+    34%{transform:translateY(-4px) translateX(-20vw)}
+    72%{transform:translateY(-4px) translateX(-20vw)}
+    100%{transform:translateY(0) translateX(0)}
   }
 
   .sprite{--sprite-size:140px;position:relative;width:var(--sprite-size);height:var(--sprite-size)}
@@ -262,8 +360,8 @@
   .hero-zone .sprite{filter:drop-shadow(0 0 14px rgba(0,240,255,.55))}
   .villain-zone .sprite{filter:drop-shadow(0 0 18px var(--villain-glow,rgba(255,45,111,.6)))}
 
-  .shadow-disc{width:90px;height:14px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,240,255,.25),transparent 70%);margin-top:-6px}
-  .villain-zone .shadow-disc{background:radial-gradient(ellipse,var(--villain-glow,rgba(255,45,111,.35)),transparent 70%)}
+  .shadow-disc{width:92px;height:10px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.34),transparent 72%);margin-top:-4px;filter:blur(1px)}
+  .villain-zone .shadow-disc{background:radial-gradient(ellipse,rgba(0,0,0,.38),transparent 72%)}
 
   /* aura holograma do herói */
   .hero-aura{position:absolute;inset:-10px;border:1px dashed rgba(0,240,255,.4);border-radius:50%;animation:spin 6s linear infinite;pointer-events:none}
@@ -558,6 +656,7 @@
     .villain-zone .sprite{--sprite-size:112px}
     .hero-zone{left: 2%}
     .villain-zone{right: 2%}
+    .hero-zone,.villain-zone{bottom:-6px}
     .q-text{font-size:16px; margin-bottom:8px; min-height: 20px}
     .opt{font-size:14px; padding:6px 8px; gap:4px}
     .opt b{font-size:9px; min-width: 14px}
@@ -597,6 +696,7 @@
     .sprite{--sprite-size:82px}
     .villain-zone .sprite{--sprite-size:108px}
     .arena{min-height: 150px}
+    .hero-zone,.villain-zone{bottom:-8px}
     .score-pill{display:none} /* Esconde o turno em telas muito baixas p/ ganhar espaço */
     .hud-top{grid-template-columns:1fr 1fr} 
   }
@@ -969,7 +1069,7 @@ const VILLAINS = {
     hp:42,
     color:'#52b8e8',
     glow:'rgba(82,184,232,0.55)',
-    arenaBg:`linear-gradient(rgba(8,35,90,0.55) 0%,rgba(4,12,24,0.78) 100%),url('src/assets/backgrounds/bg_sepzilla.png') center/cover no-repeat`,
+    arenaBg:`linear-gradient(rgba(8,35,90,0.25) 0%,rgba(4,12,24,0.48) 100%),url('src/assets/backgrounds/bg_tubotox_clean.png') center/cover no-repeat`,
     arenaLabel:'UTI RESPIRATÓRIA — PAV',
     arenaTags:['◆ VENTILAÇÃO MECÂNICA','◆ CIRCUITOS','◆ BIOFILME','◆ TUBO OROTRAQUEAL'],
     info:{
@@ -1563,6 +1663,166 @@ function buildMap() {
     container.appendChild(secDiv);
   });
 }
+
+function escapeHtml(value = ''){
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[char]));
+}
+
+function getMapScene(v, idx){
+  const attacks = v.info?.attacks || [];
+  const locations = v.info?.locations || [];
+  const attack = attacks[idx % Math.max(attacks.length, 1)] || { name:v.name, desc:v.info?.profile || '' };
+  const location = locations[idx % Math.max(locations.length, 1)] || v.arenaLabel || 'Setor hospitalar';
+  return { attack, location };
+}
+
+function getMapEffects(v){
+  const attacks = v.info?.attacks || [];
+  const fallback = v.info?.profile ? [{ name: 'Alerta', desc: v.info.profile }] : [];
+  return (attacks.length ? attacks : fallback).slice(0, 3);
+}
+
+function getMapSprite(v){
+  const configs = {
+    tubotox: { sprites: TUBOTOX_SPRITES, label: 'TuboTox', className: 'attack-sprite' },
+    cateterion: { sprites: CATETERION_SPRITES, label: 'Cateterion', className: 'cateterion-sprite attack-sprite' },
+    klebzor: { sprites: KLEBZOR_SPRITES, label: 'Klebzor', className: 'klebzor-sprite attack-sprite' },
+    escherika: { sprites: ESCHERIKA_SPRITES, label: 'Escherika', className: 'escherika-sprite attack-sprite' },
+    sepzilla: { sprites: { ataque1: 'src/assets/sprites/sepzilla/ataque1.png', idle: 'src/assets/sprites/sepzilla/idle.png' }, label: 'Sepzilla', className: 'attack-sprite' },
+  };
+  const config = configs[v.id];
+  if (config) {
+    const src = config.sprites.ataque1 || config.sprites.ataque || config.sprites.skillEspecial || config.sprites.idle;
+    return spriteSheet(src, config.label, config.className);
+  }
+  const icon = MAP_ICONS[v.id] || '';
+  return `<img src="${icon}" alt="${escapeHtml(v.name)}" />`;
+}
+
+function renderHospitalMap() {
+  const container = $('#map-container');
+  container.innerHTML = '';
+  $('#map-score-display').innerText = userProgress.score;
+
+  MAP_DATA.forEach(section => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'map-section';
+    secDiv.innerHTML = `
+      <div class="map-section-header" style="background: ${section.color}">
+        <h3 style="color: ${section.bg}">${section.title}</h3>
+        <p style="color: #000"><b>${section.subtitle}</b></p>
+      </div>
+    `;
+
+    const pathDiv = document.createElement('div');
+    pathDiv.className = 'map-path';
+
+    section.nodes.forEach((node, idx) => {
+      const isDone = userProgress.completedNodes.includes(node.id);
+      let isCurrent = false;
+      let isLocked = true;
+
+      if (node.type !== 'locked') {
+        isLocked = false;
+        isCurrent = !isDone;
+      }
+
+      let stateClass = 'locked';
+      if (isDone) stateClass = 'done';
+      if (isCurrent) stateClass = 'current';
+
+      const nodeEl = document.createElement('div');
+      nodeEl.className = `map-node ${stateClass}`;
+
+      if (node.type === 'villain') {
+        const v = VILLAINS[node.id];
+        const scene = getMapScene(v, idx);
+        const effects = getMapEffects(v);
+        nodeEl.style.setProperty('--map-glow', v.glow || 'rgba(0,240,255,.26)');
+        nodeEl.style.setProperty('--map-room', v.arenaBg || `linear-gradient(135deg, ${v.color}33, #07101f 72%)`);
+        if (v.id === 'tubotox') {
+          nodeEl.classList.add('image-only');
+          nodeEl.style.setProperty('--map-card-image', `url('src/assets/backgrounds/card_tubotox_pav_patient.png')`);
+          nodeEl.setAttribute('aria-label', `${v.name} - ${v.sci}`);
+        } else {
+          nodeEl.innerHTML = `
+            <div class="map-node-art">
+              <div class="map-scene-label">PROTOCOLO CCIH</div>
+              ${getMapSprite(v)}
+              <div class="map-scene-sector">${escapeHtml(scene.location)}</div>
+            </div>
+            <div class="map-node-info">
+              <div>
+                <div class="map-node-kicker">LAB ${(idx + 1).toString().padStart(2, '0')}</div>
+                <div class="map-node-title">${escapeHtml(v.name)}</div>
+                <div class="map-node-place">${escapeHtml(v.sci || v.tag)}</div>
+              </div>
+              <div class="map-effect-list">
+                ${effects.map((effect, effectIdx) => `
+                  <div class="map-effect-row">
+                    <div class="map-effect-icon">${effectIdx + 1}</div>
+                    <div>
+                      <div class="map-effect-name">${escapeHtml(effect.name)}</div>
+                      <div class="map-node-effect">${escapeHtml(effect.desc)}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="map-critical-box">
+                <div class="map-critical-icon">!</div>
+                <div>
+                  <div class="map-critical-title">${isDone ? 'Situação controlada' : 'Situação crítica'}</div>
+                  <div class="map-critical-text">${isDone ? 'Protocolo concluído' : 'Intervenção imediata necessária'}</div>
+                </div>
+              </div>
+              <div class="map-node-status">${isDone ? 'PROTOCOLO CONCLUIDO' : 'TOQUE PARA INVESTIGAR'}</div>
+            </div>
+          `;
+        }
+
+        nodeEl.addEventListener('click', () => {
+          if (!isLocked && !nodeEl.dataset.clicking) {
+             nodeEl.dataset.clicking = '1';
+             nodeEl.style.transform = `scale(0.98)`;
+             setTimeout(() => {
+                nodeEl.style.transform = `scale(1)`;
+                delete nodeEl.dataset.clicking;
+                showVillainProfile(v);
+             }, 150);
+          }
+        });
+      } else {
+         nodeEl.innerHTML = `
+          <div class="map-node-art"><span class="locked-icon">?</span></div>
+          <div class="map-node-info">
+            <div class="map-node-kicker">ALA FECHADA</div>
+            <div class="map-node-title">Setor bloqueado</div>
+            <div class="map-node-effect">Complete os protocolos anteriores para liberar novas missoes.</div>
+          </div>
+         `;
+         nodeEl.addEventListener('click', () => {
+           if (!nodeEl.classList.contains('locked')) return;
+           nodeEl.style.transform = `scale(0.98)`;
+           setTimeout(()=>{
+             nodeEl.style.transform = `scale(1)`;
+           }, 150);
+         });
+      }
+
+      pathDiv.appendChild(nodeEl);
+      if (idx < section.nodes.length - 1 && idx % 2 === 1) {
+        const rail = document.createElement('div');
+        rail.className = 'hospital-path-rail';
+        pathDiv.appendChild(rail);
+      }
+    });
+
+    secDiv.appendChild(pathDiv);
+    container.appendChild(secDiv);
+  });
+}
 let currentUser = null;
 let isSignUpMode = false;
 
@@ -1702,12 +1962,12 @@ if(supabase) {
 // ---------- INIT ----------
 $('#vp-close').addEventListener('click', () => { $('#vp-overlay').classList.remove('show'); });
 $('#vp-fight').addEventListener('click', () => { $('#vp-overlay').classList.remove('show'); go('hero'); });
-$('#btn-start').addEventListener('click', ()=> { buildMap(); go('map'); });
-$('#btn-replay').addEventListener('click', ()=> { buildMap(); go('map'); });
+$('#btn-start').addEventListener('click', ()=> { renderHospitalMap(); go('map'); });
+$('#btn-replay').addEventListener('click', ()=> { renderHospitalMap(); go('map'); });
 $$('[data-back]').forEach(b => b.addEventListener('click', e => {
   const target = e.currentTarget.dataset.back;
   if(target === 'title' || target === 'villain') {
-    buildMap();
+    renderHospitalMap();
     go('map');
   } else {
     go(target);
